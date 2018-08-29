@@ -1,4 +1,4 @@
-package int_.comesa.www.comesanews;
+package int_.comesa.www.savannapost;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

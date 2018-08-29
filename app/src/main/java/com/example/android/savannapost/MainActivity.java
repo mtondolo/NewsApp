@@ -1,8 +1,9 @@
-package int_.comesa.www.comesanews;
+package com.example.android.savannapost;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
          * This String array contains news headlines.
          *
          */
-        String[] news = News.getNews();
+        String[] news = int_.comesa.www.savannapost.News.getNews();
 
         /*
          * Iterate through the array and append the Strings to the TextView. The purpose of

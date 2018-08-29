@@ -1,4 +1,4 @@
-package int_.comesa.www.comesanews;
+package int_.comesa.www.savannapost;
 
 public class News {
 
