@@ -1,4 +1,4 @@
-package com.example.android.savannapost;
+package com.example.android.merchantpost;
 
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -7,8 +7,8 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.android.savannapost.utils.JsonUtils;
-import com.example.android.savannapost.utils.NetworkUtils;
+import com.example.android.merchantpost.utils.JsonUtils;
+import com.example.android.merchantpost.utils.NetworkUtils;
 
 import java.net.URL;
 

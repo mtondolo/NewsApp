@@ -1,4 +1,4 @@
-package com.example.android.savannapost.utils;
+package com.example.android.merchantpost.utils;
 
 import android.content.Context;
 import android.text.TextUtils;

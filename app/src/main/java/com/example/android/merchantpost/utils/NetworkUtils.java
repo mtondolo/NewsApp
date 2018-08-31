@@ -1,4 +1,4 @@
-package com.example.android.savannapost.utils;
+package com.example.android.merchantpost.utils;
 
 import android.net.Uri;
 import android.util.Log;
@@ -25,7 +25,7 @@ public class NetworkUtils {
     final static String PARAM_KEY = "apiKey";
 
     final static String apiKey = "641959fcdf1e4463bbf0e95a63efced5";
-    final static String sources = "bbc-news,cnn,al-jazeera-english,news24,google-news";
+    final static String sources = "bloomberg,cnbc,financial-times,business-insider,crypto-coins-news";
 
     /**
      * Builds the URL used to query News API.
