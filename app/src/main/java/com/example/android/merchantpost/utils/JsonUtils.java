@@ -7,7 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class JSONUtils {
+public class JsonUtils {
 
     /**
      * This method parses JSON from a web response and returns an array of Strings

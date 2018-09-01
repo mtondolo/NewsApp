@@ -1,5 +1,6 @@
 package com.example.android.merchantpost;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,13 +9,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.example.android.merchantpost.utils.JSONUtils;
+import com.example.android.merchantpost.utils.JsonUtils;
 import com.example.android.merchantpost.utils.NetworkUtils;
 
 import java.net.URL;
 
-public class NewsActivity extends AppCompatActivity {
+public class NewsActivity extends AppCompatActivity implements NewsAdapter.NewsAdapterOnClickHandler {
 
     private RecyclerView mRecyclerView;
     private NewsAdapter mNewsAdapter;
@@ -57,7 +59,7 @@ public class NewsActivity extends AppCompatActivity {
          * The NewsAdapter is responsible for linking our news data with the Views that
          * will end up displaying our news data.
          */
-        mNewsAdapter = new NewsAdapter();
+        mNewsAdapter = new NewsAdapter(this);
 
         /*
           * Use mRecyclerView.setAdapter and pass in mNewsAdapter.
@@ -109,6 +111,19 @@ public class NewsActivity extends AppCompatActivity {
         mErrorMessageDisplay.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * This method is overridden by the NewsActivity class in order to handle RecyclerView item
+     * clicks.
+     *
+     * @param newsItem The news item for the news that was clicked
+     */
+    @Override
+    public void onClick(String newsItem) {
+        Context context = this;
+        Toast.makeText(context, newsItem, Toast.LENGTH_SHORT)
+                .show();
+    }
+
     public class FetchNewsTask extends AsyncTask<String, Void, String[]> {
 
         @Override
@@ -123,7 +138,7 @@ public class NewsActivity extends AppCompatActivity {
             try {
                 String jsonWeatherResponse = NetworkUtils
                         .getResponseFromHttpUrl(weatherRequestUrl);
-                String[] simpleJsonWeatherData = JSONUtils
+                String[] simpleJsonWeatherData = JsonUtils
                         .getSimpleNewsStringsFromJson(NewsActivity.this, jsonWeatherResponse);
                 return simpleJsonWeatherData;
             } catch (Exception e) {

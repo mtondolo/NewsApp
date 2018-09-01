@@ -16,23 +16,43 @@
 package com.example.android.merchantpost;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.List;
-
 public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterViewHolder> {
 
     private String[] mNewsData;
 
+    /*
+     * An on-click handler that we've defined to make it easy for an Activity to interface with
+     * our RecyclerView
+     */
+    private final NewsAdapterOnClickHandler mClickHandler;
+
+    /**
+     * The interface that receives onClick messages.
+     */
+    public interface NewsAdapterOnClickHandler {
+        void onClick(String newsItem);
+    }
+
+    /**
+     * Creates a NewsAdapter.
+     *
+     * @param clickHandler The on-click handler for this adapter. This single handler is called
+     *                     when an item is clicked.
+     */
+    public NewsAdapter(NewsAdapterOnClickHandler clickHandler) {
+        mClickHandler = clickHandler;
+    }
+
     /**
      * Cache of the children views for a news list item.
      */
-    public class NewsAdapterViewHolder extends RecyclerView.ViewHolder {
+    public class NewsAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public final TextView mNewsTextView;
 
@@ -42,6 +62,14 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
 
             // Get a reference to this layout's TextView and save it to mNewsTextView
             mNewsTextView = (TextView) view.findViewById(R.id.tv_news_data);
+            view.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            int adapterPosition = getAdapterPosition();
+            String weatherForDay = mNewsData[adapterPosition];
+            mClickHandler.onClick(weatherForDay);
         }
     }
 
