@@ -3,34 +3,67 @@ package com.example.android.merchantpost;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.android.merchantpost.utils.JsonUtils;
+import com.example.android.merchantpost.utils.JSONUtils;
 import com.example.android.merchantpost.utils.NetworkUtils;
 
 import java.net.URL;
 
-public class MainActivity extends AppCompatActivity {
+public class NewsActivity extends AppCompatActivity {
 
-    private TextView mNewsListTextView;
+    private RecyclerView mRecyclerView;
+    private NewsAdapter mNewsAdapter;
     private TextView mErrorMessageDisplay;
     private ProgressBar mLoadingIndicator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_news);
 
         /*
-         * Using findViewById, we get a reference to our TextView from xml. This allows us to
-         * do things like set the text of the TextView.
+         * Using findViewById, we get a reference to our RecyclerView from xml. This allows us to
+         * do things like set the adapter of the RecyclerView and toggle the visibility.
          */
-        mNewsListTextView = (TextView) findViewById(R.id.tv_news);
+        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_news);
 
         /* This TextView is used to display errors and will be hidden if there are no errors */
         mErrorMessageDisplay = (TextView) findViewById(R.id.tv_error_message_display);
+
+        /*
+         * LinearLayoutManager can support HORIZONTAL or VERTICAL orientations. The reverse layout
+         * parameter is useful mostly for HORIZONTAL layouts that should reverse for right to left
+         * languages.
+         */
+        LinearLayoutManager layoutManager
+                = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        mRecyclerView.setLayoutManager(layoutManager);
+
+        /*
+           * Use setHasFixedSize(true) on mRecyclerView to designate that all items in the list
+           * will have the same size.
+           * Use this setting to improve performance if you know that changes in content do not
+           * change the child layout size in the RecyclerView
+        */
+        mRecyclerView.setHasFixedSize(true);
+
+        /*
+         * Set mNewsAdapter equal to a new NewsAdapter.
+         * The NewsAdapter is responsible for linking our news data with the Views that
+         * will end up displaying our news data.
+         */
+        mNewsAdapter = new NewsAdapter();
+
+        /*
+          * Use mRecyclerView.setAdapter and pass in mNewsAdapter.
+          * Setting the adapter attaches it to the RecyclerView in our layout.
+        */
+        mRecyclerView.setAdapter(mNewsAdapter);
 
         /*
          * The ProgressBar that will indicate to the user that we are loading data. It will be
@@ -62,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
         /* First, make sure the error is invisible */
         mErrorMessageDisplay.setVisibility(View.INVISIBLE);
         /* Then, make sure the news data is visible */
-        mNewsListTextView.setVisibility(View.VISIBLE);
+        mRecyclerView.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -71,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void showErrorMessage() {
         /* First, hide the currently visible data */
-        mNewsListTextView.setVisibility(View.INVISIBLE);
+        mRecyclerView.setVisibility(View.INVISIBLE);
         /* Then, show the error */
         mErrorMessageDisplay.setVisibility(View.VISIBLE);
     }
@@ -90,8 +123,8 @@ public class MainActivity extends AppCompatActivity {
             try {
                 String jsonWeatherResponse = NetworkUtils
                         .getResponseFromHttpUrl(weatherRequestUrl);
-                String[] simpleJsonWeatherData = JsonUtils
-                        .getSimpleNewsStringsFromJson(MainActivity.this, jsonWeatherResponse);
+                String[] simpleJsonWeatherData = JSONUtils
+                        .getSimpleNewsStringsFromJson(NewsActivity.this, jsonWeatherResponse);
                 return simpleJsonWeatherData;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -109,14 +142,7 @@ public class MainActivity extends AppCompatActivity {
                 // If the news data was not null, make sure the data view is visible
                 showNewsDataView();
 
-                /*
-                 * Iterate through the array and append the Strings to the TextView. We add
-                 * the "\n\n\n" after the String to give visual separation between each String in the
-                 * TextView.
-                 */
-                for (String newsString : newsData) {
-                    mNewsListTextView.append((newsString) + "\n\n\n");
-                }
+                mNewsAdapter.setNewsData(newsData);
             } else {
                 // If the news data was null, show the error message
                 showErrorMessage();
