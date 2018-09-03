@@ -25,7 +25,7 @@ public class NetworkUtils {
     final static String PARAM_KEY = "apiKey";
 
     final static String apiKey = "641959fcdf1e4463bbf0e95a63efced5";
-    final static String sources = "bbc-news,cnn,al-jazeera-english,bloomberg,cnbc,techcrunch,espn,bbc-sport,news24";
+    final static String sources = "bbc-news,cnn,al-jazeera-english,bloomberg,cnbc,espn,bbc-sport";
 
     /**
      * Builds the URL used to query News API.

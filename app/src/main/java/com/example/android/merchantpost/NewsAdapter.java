@@ -68,8 +68,8 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
-            String weatherForDay = mNewsData[adapterPosition];
-            mClickHandler.onClick(weatherForDay);
+            String newsItem = mNewsData[adapterPosition];
+            mClickHandler.onClick(newsItem);
         }
     }
 
@@ -113,8 +113,8 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
     public void onBindViewHolder(NewsAdapterViewHolder newsAdapterViewHolder, int position) {
 
         // Set the text of the TextView to the news for this list item's position
-        String weatherForThisDay = mNewsData[position];
-        newsAdapterViewHolder.mNewsTextView.setText(weatherForThisDay);
+        String newsItem = mNewsData[position];
+        newsAdapterViewHolder.mNewsTextView.setText(newsItem);
     }
 
     /**

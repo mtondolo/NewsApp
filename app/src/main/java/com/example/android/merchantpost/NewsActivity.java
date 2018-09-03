@@ -1,7 +1,9 @@
 package com.example.android.merchantpost;
 
 import android.content.Context;
-import android.os.AsyncTask;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,12 +18,15 @@ import com.example.android.merchantpost.utils.NetworkUtils;
 
 import java.net.URL;
 
-public class NewsActivity extends AppCompatActivity implements NewsAdapter.NewsAdapterOnClickHandler {
+public class NewsActivity extends AppCompatActivity implements
+        NewsAdapter.NewsAdapterOnClickHandler,
+        LoaderCallbacks<String[]> {
 
     private RecyclerView mRecyclerView;
     private NewsAdapter mNewsAdapter;
     private TextView mErrorMessageDisplay;
     private ProgressBar mLoadingIndicator;
+    private static final int NEWS_LOADER_ID = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,11 +52,11 @@ public class NewsActivity extends AppCompatActivity implements NewsAdapter.NewsA
         mRecyclerView.setLayoutManager(layoutManager);
 
         /*
-           * Use setHasFixedSize(true) on mRecyclerView to designate that all items in the list
-           * will have the same size.
-           * Use this setting to improve performance if you know that changes in content do not
-           * change the child layout size in the RecyclerView
-        */
+         * Use setHasFixedSize(true) on mRecyclerView to designate that all items in the list
+         * will have the same size.
+         * Use this setting to improve performance if you know that changes in content do not
+         * change the child layout size in the RecyclerView
+         */
         mRecyclerView.setHasFixedSize(true);
 
         /*
@@ -62,9 +67,9 @@ public class NewsActivity extends AppCompatActivity implements NewsAdapter.NewsA
         mNewsAdapter = new NewsAdapter(this);
 
         /*
-          * Use mRecyclerView.setAdapter and pass in mNewsAdapter.
-          * Setting the adapter attaches it to the RecyclerView in our layout.
-        */
+         * Use mRecyclerView.setAdapter and pass in mNewsAdapter.
+         * Setting the adapter attaches it to the RecyclerView in our layout.
+         */
         mRecyclerView.setAdapter(mNewsAdapter);
 
         /*
@@ -74,19 +79,35 @@ public class NewsActivity extends AppCompatActivity implements NewsAdapter.NewsA
          */
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
 
-        /* Once all of our views are setup, we can load the news data. */
-        loadNewsData();
+        /*
+         * This ID will uniquely identify the Loader. We can use it, for example, to get a handle
+         * on our Loader at a later point in time through the support LoaderManager.
+         */
+        int loaderId = NEWS_LOADER_ID;
 
-    }
+        /*
+         * From NewsActivity, we have implemented the LoaderCallbacks interface with the type of
+         * String array. (implements LoaderCallbacks<String[]>) The variable callback is passed
+         * to the call to initLoader below. This means that whenever the loaderManager has
+         * something to notify us of, it will do so through this callback.
+         */
+        LoaderCallbacks<String[]> callback = NewsActivity.this;
 
-    /**
-     * This method will tell some background method to get the weather data in the background.
-     */
-    private void loadNewsData() {
+        /*
+         * The second parameter of the initLoader method below is a Bundle. Optionally, you can
+         * pass a Bundle to initLoader that you can then access from within the onCreateLoader
+         * callback. In our case, we don't actually use the Bundle, but it's here in case we wanted
+         * to.
+         */
+        Bundle bundleForLoader = null;
 
-        //Call showNewsDataView before executing the AsyncTask
-        showNewsDataView();
-        new FetchNewsTask().execute();
+        /*
+         * Ensures a loader is initialized and active. If the loader doesn't already exist, one is
+         * created and (if the activity/fragment is currently started) starts the loader. Otherwise
+         * the last created loader is re-used.
+         */
+        getSupportLoaderManager().initLoader(loaderId, bundleForLoader,callback);
+
     }
 
     /**
@@ -124,45 +145,101 @@ public class NewsActivity extends AppCompatActivity implements NewsAdapter.NewsA
                 .show();
     }
 
-    public class FetchNewsTask extends AsyncTask<String, Void, String[]> {
+    /**
+     * Instantiate and return a new Loader for the given ID.
+     *
+     * @param id         The ID whose loader is to be created.
+     * @param loaderArgs Any arguments supplied by the caller.
+     * @return Return a new Loader instance that is ready to start loading.
+     */
+    @Override
+    public Loader<String[]> onCreateLoader(int id, Bundle loaderArgs) {
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            mLoadingIndicator.setVisibility(View.VISIBLE);
-        }
+        return new AsyncTaskLoader<String[]>(this) {
 
-        @Override
-        protected String[] doInBackground(String... params) {
-            URL weatherRequestUrl = NetworkUtils.buildUrl();
-            try {
-                String jsonWeatherResponse = NetworkUtils
-                        .getResponseFromHttpUrl(weatherRequestUrl);
-                String[] simpleJsonWeatherData = JsonUtils
-                        .getSimpleNewsStringsFromJson(NewsActivity.this, jsonWeatherResponse);
-                return simpleJsonWeatherData;
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
+            /* This String array will hold and help cache our weather data */
+            String[] mNewsData = null;
+
+            /**
+             * Subclasses of AsyncTaskLoader must implement this to take care of loading their data.
+             */
+            @Override
+            protected void onStartLoading() {
+                if (mNewsData != null) {
+                    deliverResult(mNewsData);
+                } else {
+                    mLoadingIndicator.setVisibility(View.VISIBLE);
+                    forceLoad();
+                }
             }
-        }
 
-        @Override
-        protected void onPostExecute(String[] newsData) {
-
-            //As soon as the data is finished loading, hide the loading indicator
-            mLoadingIndicator.setVisibility(View.INVISIBLE);
-            if (newsData != null) {
-
-                // If the news data was not null, make sure the data view is visible
-                showNewsDataView();
-
-                mNewsAdapter.setNewsData(newsData);
-            } else {
-                // If the news data was null, show the error message
-                showErrorMessage();
+            /**
+             * This is the method of the AsyncTaskLoader that will load and parse the JSON data
+             * from News API in the background.
+             *
+             * @return news data from News API as an array of Strings.
+             *         null if an error occurs
+             */
+            @Override
+            public String[] loadInBackground() {
+                URL newsRequestUrl = NetworkUtils.buildUrl();
+                try {
+                    String jsonNewsResponse = NetworkUtils
+                            .getResponseFromHttpUrl(newsRequestUrl);
+                    String[] simpleJsonNewsData = JsonUtils
+                            .getSimpleNewsStringsFromJson(NewsActivity.this, jsonNewsResponse);
+                    return simpleJsonNewsData;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
             }
+
+            /**
+             * Sends the result of the load to the registered listener.
+             *
+             * @param data The result of the load
+             */
+            @Override
+            public void deliverResult(String[] data) {
+                mNewsData = data;
+                super.deliverResult(data);
+            }
+        };
+
+    }
+
+    /**
+     * Called when a previously created loader has finished its load.
+     *
+     * @param loader The Loader that has finished.
+     * @param data   The data generated by the Loader.
+     */
+    @Override
+    public void onLoadFinished(Loader<String[]> loader, String[] data) {
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        mNewsAdapter.setNewsData(data);
+        if (null == data) {
+            showErrorMessage();
+        } else {
+            showNewsDataView();
         }
     }
+
+    /**
+     * Called when a previously created loader is being reset, and thus
+     * making its data unavailable.  The application should at this point
+     * remove any references it has to the Loader's data.
+     *
+     * @param loader The Loader that is being reset.
+     */
+    @Override
+    public void onLoaderReset(Loader<String[]> loader) {
+        /*
+         * We aren't using this method at the moment, but we are required to Override
+         * it to implement the LoaderCallbacks<String> interface
+         */
+    }
+
 }
 

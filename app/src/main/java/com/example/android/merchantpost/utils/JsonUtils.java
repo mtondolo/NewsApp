@@ -22,15 +22,21 @@ public class JsonUtils {
         // News item. Each news item is an element of the "articles" array
         final String NEWS_LIST = "articles";
 
-        // News source for the news item
+        // News source object for the news item
         final String NEWS_SOURCE = "source";
-        final String NEWS_SOURCE_NAME = "name";
+
 
         // News headline for the news item
         final String NEWS_TITLE = "title";
 
         // News published date for the news item
         final String NEWS_DATE = "publishedAt";
+
+        // News source url for the news item
+        final String NEWS_URL="url";
+
+        // News source name for the news item
+        final String NEWS_SOURCE_NAME = "name";
 
         // String array to hold each news item String */
         String[] parsedNewsData = null;
@@ -52,15 +58,18 @@ public class JsonUtils {
             String title;
             String source;
             String date;
+            String url;
 
             /* Get the JSON object representing the new item */
             JSONObject newsItem = newsArray.getJSONObject(i);
-            // Extract the value for the key called "title" and "date" and "name"
-            title = newsItem.getString(NEWS_TITLE);
-            date = newsItem.getString(NEWS_DATE);
 
             // Extract the value for the key called "name"
             JSONObject newsSource = newsItem.getJSONObject(NEWS_SOURCE);
+
+            // Extract the value for the key called "title" and "date" and "name"
+            title = newsItem.getString(NEWS_TITLE);
+            date = newsItem.getString(NEWS_DATE);
+            url = newsItem.getString(NEWS_URL);
             source = newsSource.getString(NEWS_SOURCE_NAME);
 
             parsedNewsData[i] = title + " - " + date + " - " + source;
