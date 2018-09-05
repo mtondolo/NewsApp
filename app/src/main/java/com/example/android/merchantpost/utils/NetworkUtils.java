@@ -30,9 +30,10 @@ public class NetworkUtils {
     /**
      * Builds the URL used to query News API.
      *
+     * @param sources
      * @return The URL to use to query the News API.
      */
-    public static URL buildUrl() {
+    public static URL buildUrl(String sources) {
         Uri builtUri = Uri.parse(NEWS_API_BASE_URL).buildUpon()
                 .appendQueryParameter(PARAM_QUERY, sources)
                 .appendQueryParameter(PARAM_KEY, apiKey)

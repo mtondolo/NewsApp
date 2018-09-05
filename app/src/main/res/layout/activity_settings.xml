@@ -10,7 +10,9 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/news_settings_container"
+<!-- Root layout for SettingsActivity -->
+<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+    android:name="com.example.android.merchantpost.SettingsFragment"
+    android:id="@+id/news_settings_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent" />

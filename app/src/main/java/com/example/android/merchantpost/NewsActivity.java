@@ -2,6 +2,8 @@ package com.example.android.merchantpost;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -9,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -17,6 +20,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.merchantpost.data.NewsPreferences;
 import com.example.android.merchantpost.utils.JsonUtils;
 import com.example.android.merchantpost.utils.NetworkUtils;
 
@@ -24,13 +28,18 @@ import java.net.URL;
 
 public class NewsActivity extends AppCompatActivity implements
         NewsAdapter.NewsAdapterOnClickHandler,
-        LoaderCallbacks<String[]> {
+        LoaderCallbacks<String[]>,
+        SharedPreferences.OnSharedPreferenceChangeListener {
+
+    private static final String TAG = NewsActivity.class.getSimpleName();
 
     private RecyclerView mRecyclerView;
     private NewsAdapter mNewsAdapter;
     private TextView mErrorMessageDisplay;
     private ProgressBar mLoadingIndicator;
+
     private static final int NEWS_LOADER_ID = 0;
+    private static boolean PREFERENCES_HAVE_BEEN_UPDATED = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +120,15 @@ public class NewsActivity extends AppCompatActivity implements
          * the last created loader is re-used.
          */
         getSupportLoaderManager().initLoader(loaderId, bundleForLoader, callback);
+        Log.d(TAG, "onCreate: registering preference changed listener");
+
+        /*
+         * Register NewsActivity as an OnPreferenceChangedListener to receive a callback when a
+         * SharedPreference has changed.
+         *
+         */
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .registerOnSharedPreferenceChangeListener(this);
 
     }
 
@@ -134,6 +152,25 @@ public class NewsActivity extends AppCompatActivity implements
         mRecyclerView.setVisibility(View.INVISIBLE);
         /* Then, show the error */
         mErrorMessageDisplay.setVisibility(View.VISIBLE);
+    }
+
+    //If preferences have been changed, refresh the data and set the flag to false
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (PREFERENCES_HAVE_BEEN_UPDATED) {
+            Log.d(TAG, "onStart: preferences were updated");
+            getSupportLoaderManager().restartLoader(NEWS_LOADER_ID, null, this);
+            PREFERENCES_HAVE_BEEN_UPDATED = false;
+        }
+    }
+
+    // Unregister NewsActivity as a SharedPreferenceChangedListener
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .unregisterOnSharedPreferenceChangeListener(this);
     }
 
     /**
@@ -186,7 +223,10 @@ public class NewsActivity extends AppCompatActivity implements
              */
             @Override
             public String[] loadInBackground() {
-                URL newsRequestUrl = NetworkUtils.buildUrl();
+
+                String sources = NewsPreferences.getPreferredNewsChannel(NewsActivity.this);
+
+                URL newsRequestUrl = NetworkUtils.buildUrl(sources);
                 try {
                     String jsonNewsResponse = NetworkUtils
                             .getResponseFromHttpUrl(newsRequestUrl);
@@ -266,6 +306,23 @@ public class NewsActivity extends AppCompatActivity implements
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    // et the preferences flag to true
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+
+        /*
+         * Set this flag to true so that when control returns to MainActivity, it can refresh the
+         * data.
+         *
+         * This isn't the ideal solution because there really isn't a need to perform another
+         * GET request just to change the units, but this is the simplest solution that gets the
+         * job done for now.
+         *
+         */
+        PREFERENCES_HAVE_BEEN_UPDATED = true;
+
     }
 }
 
