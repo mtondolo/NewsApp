@@ -135,7 +135,8 @@ public class NewsProvider extends ContentProvider {
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
     }
-    
+
+
     /**
      * In News, we aren't going to do anything with this method. However, we are required to
      * override it as WeatherProvider extends ContentProvider and getType is an abstract method in

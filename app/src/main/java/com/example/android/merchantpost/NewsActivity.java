@@ -1,9 +1,13 @@
 package com.example.android.merchantpost;
 
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -20,6 +24,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.merchantpost.data.NewsContract;
 import com.example.android.merchantpost.data.NewsPreferences;
 import com.example.android.merchantpost.utils.JsonUtils;
 import com.example.android.merchantpost.utils.NetworkUtils;
@@ -28,18 +33,43 @@ import java.net.URL;
 
 public class NewsActivity extends AppCompatActivity implements
         NewsAdapter.NewsAdapterOnClickHandler,
-        LoaderCallbacks<String[]>,
-        SharedPreferences.OnSharedPreferenceChangeListener {
+        LoaderManager.LoaderCallbacks<Cursor>{
 
     private static final String TAG = NewsActivity.class.getSimpleName();
 
+    /*
+     * The columns of data that we are interested in displaying within our MainActivity's list of
+     * weather data.
+     */
+    public static final String[] MAIN_NEWS_PROJECTION = {
+            NewsContract.NewsEntry.COLUMN_TITLE,
+            NewsContract.NewsEntry.COLUMN_DATE,
+            NewsContract.NewsEntry.COLUMN_SOURCE,
+    };
+
+    /*
+     * We store the indices of the values in the array of Strings above to more quickly be able to
+     * access the data from our query. If the order of the Strings above changes, these indices
+     * must be adjusted to match the order of the Strings.
+     */
+    public static final int INDEX_NEWS_TITLE = 0;
+    public static final int INDEX_NEWS_DATE = 1;
+    public static final int INDEX_NEWS_NAME = 2;
+
+    /*
+     * This ID will be used to identify the Loader responsible for loading our weather forecast. In
+     * some cases, one Activity can deal with many Loaders. However, in our case, there is only one.
+     * We will still use this ID to initialize the loader and create the loader for best practice.
+     * Please note that 44 was chosen arbitrarily. You can use whatever number you like, so long as
+     * it is unique and consistent.
+     */
+    private static final int ID_NEWS_LOADER = 44;
+
     private RecyclerView mRecyclerView;
     private NewsAdapter mNewsAdapter;
-    private TextView mErrorMessageDisplay;
     private ProgressBar mLoadingIndicator;
 
-    private static final int NEWS_LOADER_ID = 0;
-    private static boolean PREFERENCES_HAVE_BEEN_UPDATED = false;
+    private int mPosition = RecyclerView.NO_POSITION;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +82,12 @@ public class NewsActivity extends AppCompatActivity implements
          */
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_news);
 
-        /* This TextView is used to display errors and will be hidden if there are no errors */
-        mErrorMessageDisplay = (TextView) findViewById(R.id.tv_error_message_display);
+        /*
+         * The ProgressBar that will indicate to the user that we are loading data. It will be
+         * hidden when no data is loading.
+         *
+         */
+        mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
 
         /*
          * LinearLayoutManager can support HORIZONTAL or VERTICAL orientations. The reverse layout
@@ -77,7 +111,7 @@ public class NewsActivity extends AppCompatActivity implements
          * The NewsAdapter is responsible for linking our news data with the Views that
          * will end up displaying our news data.
          */
-        mNewsAdapter = new NewsAdapter(this);
+        mNewsAdapter = new NewsAdapter(this,this);
 
         /*
          * Use mRecyclerView.setAdapter and pass in mNewsAdapter.
@@ -85,92 +119,43 @@ public class NewsActivity extends AppCompatActivity implements
          */
         mRecyclerView.setAdapter(mNewsAdapter);
 
-        /*
-         * The ProgressBar that will indicate to the user that we are loading data. It will be
-         * hidden when no data is loading.
-         *
-         */
-        mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
-
-        /*
-         * This ID will uniquely identify the Loader. We can use it, for example, to get a handle
-         * on our Loader at a later point in time through the support LoaderManager.
-         */
-        int loaderId = NEWS_LOADER_ID;
-
-        /*
-         * From NewsActivity, we have implemented the LoaderCallbacks interface with the type of
-         * String array. (implements LoaderCallbacks<String[]>) The variable callback is passed
-         * to the call to initLoader below. This means that whenever the loaderManager has
-         * something to notify us of, it will do so through this callback.
-         */
-        LoaderCallbacks<String[]> callback = NewsActivity.this;
-
-        /*
-         * The second parameter of the initLoader method below is a Bundle. Optionally, you can
-         * pass a Bundle to initLoader that you can then access from within the onCreateLoader
-         * callback. In our case, we don't actually use the Bundle, but it's here in case we wanted
-         * to.
-         */
-        Bundle bundleForLoader = null;
+        showLoading();
 
         /*
          * Ensures a loader is initialized and active. If the loader doesn't already exist, one is
          * created and (if the activity/fragment is currently started) starts the loader. Otherwise
          * the last created loader is re-used.
          */
-        getSupportLoaderManager().initLoader(loaderId, bundleForLoader, callback);
-        Log.d(TAG, "onCreate: registering preference changed listener");
-
-        /*
-         * Register NewsActivity as an OnPreferenceChangedListener to receive a callback when a
-         * SharedPreference has changed.
-         *
-         */
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .registerOnSharedPreferenceChangeListener(this);
+        getSupportLoaderManager().initLoader(ID_NEWS_LOADER, null, this);
 
     }
 
     /**
-     * This method will make the View for the news data visible and
-     * hide the error message.
+     * This method will make the View for the weather data visible and hide the error message and
+     * loading indicator.
+     * <p>
+     * Since it is okay to redundantly set the visibility of a View, we don't need to check whether
+     * each view is currently visible or invisible.
      */
     private void showNewsDataView() {
-        /* First, make sure the error is invisible */
-        mErrorMessageDisplay.setVisibility(View.INVISIBLE);
-        /* Then, make sure the news data is visible */
+        /* First, hide the loading indicator */
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        /* Finally, make sure the weather data is visible */
         mRecyclerView.setVisibility(View.VISIBLE);
     }
 
     /**
-     * This method will make the error message visible and hide the news
-     * View.
+     * This method will make the loading indicator visible and hide the news View and error
+     * message.
+     * <p>
+     * Since it is okay to redundantly set the visibility of a View, we don't need to check news
+     * each view is currently visible or invisible.
      */
-    private void showErrorMessage() {
-        /* First, hide the currently visible data */
+    private void showLoading() {
+        /* Then, hide the news data */
         mRecyclerView.setVisibility(View.INVISIBLE);
-        /* Then, show the error */
-        mErrorMessageDisplay.setVisibility(View.VISIBLE);
-    }
-
-    //If preferences have been changed, refresh the data and set the flag to false
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (PREFERENCES_HAVE_BEEN_UPDATED) {
-            Log.d(TAG, "onStart: preferences were updated");
-            getSupportLoaderManager().restartLoader(NEWS_LOADER_ID, null, this);
-            PREFERENCES_HAVE_BEEN_UPDATED = false;
-        }
-    }
-
-    // Unregister NewsActivity as a SharedPreferenceChangedListener
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .unregisterOnSharedPreferenceChangeListener(this);
+        /* Finally, show the loading indicator */
+        mLoadingIndicator.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -189,67 +174,39 @@ public class NewsActivity extends AppCompatActivity implements
     /**
      * Instantiate and return a new Loader for the given ID.
      *
-     * @param id         The ID whose loader is to be created.
-     * @param loaderArgs Any arguments supplied by the caller.
+     * @param loaderId        The ID whose loader is to be created.
+     * @param bundle Any arguments supplied by the caller.
      * @return Return a new Loader instance that is ready to start loading.
      */
     @Override
-    public Loader<String[]> onCreateLoader(int id, Bundle loaderArgs) {
+    public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
 
-        return new AsyncTaskLoader<String[]>(this) {
+        switch (loaderId) {
 
-            /* This String array will hold and help cache our weather data */
-            String[] mNewsData = null;
+            case ID_NEWS_LOADER:
+                /* URI for all rows of weather data in our weather table */
+                Uri newsQueryUri = NewsContract.NewsEntry.CONTENT_URI;
+                /* Sort order: Ascending by date */
+                String sortOrder = NewsContract.NewsEntry.COLUMN_DATE + " ASC";
+                /*
+                 * A SELECTION in SQL declares which rows you'd like to return. In our case, we
+                 * want all weather data from today onwards that is stored in our news table.
+                 * We created a handy method to do that in our NewsEntry class.
+                 */
+                String selection = NewsContract.NewsEntry.getSqlSelectForTodayOnwards();
 
-            /**
-             * Subclasses of AsyncTaskLoader must implement this to take care of loading their data.
-             */
-            @Override
-            protected void onStartLoading() {
-                if (mNewsData != null) {
-                    deliverResult(mNewsData);
-                } else {
-                    mLoadingIndicator.setVisibility(View.VISIBLE);
-                    forceLoad();
-                }
-            }
+                return new android.support.v4.content.CursorLoader(this,
+                        newsQueryUri,
+                        MAIN_NEWS_PROJECTION,
+                        selection,
+                        null,
+                        sortOrder
 
-            /**
-             * This is the method of the AsyncTaskLoader that will load and parse the JSON data
-             * from News API in the background.
-             *
-             * @return news data from News API as an array of Strings.
-             *         null if an error occurs
-             */
-            @Override
-            public String[] loadInBackground() {
+                );
 
-                String sources = NewsPreferences.getPreferredNewsChannel(NewsActivity.this);
-
-                URL newsRequestUrl = NetworkUtils.buildUrl(sources);
-                try {
-                    String jsonNewsResponse = NetworkUtils
-                            .getResponseFromHttpUrl(newsRequestUrl);
-                    String[] simpleJsonNewsData = JsonUtils
-                            .getSimpleNewsStringsFromJson(NewsActivity.this, jsonNewsResponse);
-                    return simpleJsonNewsData;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-
-            /**
-             * Sends the result of the load to the registered listener.
-             *
-             * @param data The result of the load
-             */
-            @Override
-            public void deliverResult(String[] data) {
-                mNewsData = data;
-                super.deliverResult(data);
-            }
-        };
+            default:
+                throw new RuntimeException("Loader Not Implemented: " + loaderId);
+        }
 
     }
 
@@ -260,14 +217,11 @@ public class NewsActivity extends AppCompatActivity implements
      * @param data   The data generated by the Loader.
      */
     @Override
-    public void onLoadFinished(Loader<String[]> loader, String[] data) {
-        mLoadingIndicator.setVisibility(View.INVISIBLE);
-        mNewsAdapter.setNewsData(data);
-        if (null == data) {
-            showErrorMessage();
-        } else {
-            showNewsDataView();
-        }
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mNewsAdapter.swapCursor(data);
+        if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
+        mRecyclerView.smoothScrollToPosition(mPosition);
+        if (data.getCount() != 0) showNewsDataView();
     }
 
     /**
@@ -278,11 +232,12 @@ public class NewsActivity extends AppCompatActivity implements
      * @param loader The Loader that is being reset.
      */
     @Override
-    public void onLoaderReset(Loader<String[]> loader) {
+    public void onLoaderReset(Loader<Cursor> loader) {
         /*
-         * We aren't using this method at the moment, but we are required to Override
-         * it to implement the LoaderCallbacks<String> interface
+         * Since this Loader's data is now invalid, we need to clear the Adapter that is
+         * displaying the data.
          */
+        mNewsAdapter.swapCursor(null);
     }
 
     @Override
@@ -306,23 +261,6 @@ public class NewsActivity extends AppCompatActivity implements
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    // et the preferences flag to true
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-
-        /*
-         * Set this flag to true so that when control returns to MainActivity, it can refresh the
-         * data.
-         *
-         * This isn't the ideal solution because there really isn't a need to perform another
-         * GET request just to change the units, but this is the simplest solution that gets the
-         * job done for now.
-         *
-         */
-        PREFERENCES_HAVE_BEEN_UPDATED = true;
-
     }
 }
 

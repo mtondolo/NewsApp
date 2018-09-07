@@ -16,15 +16,19 @@
 package com.example.android.merchantpost;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.android.merchantpost.utils.NewsDateUtils;
+
 public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterViewHolder> {
 
-    private String[] mNewsData;
+    /* The context we use to utility methods, app resources and layout inflaters */
+    private final Context mContext;
 
     /*
      * An on-click handler that we've defined to make it easy for an Activity to interface with
@@ -39,13 +43,17 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
         void onClick(String newsItem);
     }
 
+    private Cursor mCursor;
+
     /**
      * Creates a NewsAdapter.
      *
+     * @param context      Used to talk to the UI and app resources
      * @param clickHandler The on-click handler for this adapter. This single handler is called
      *                     when an item is clicked.
      */
-    public NewsAdapter(NewsAdapterOnClickHandler clickHandler) {
+    public NewsAdapter(Context context, NewsAdapterOnClickHandler clickHandler) {
+        mContext = context;
         mClickHandler = clickHandler;
     }
 
@@ -65,10 +73,16 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
             view.setOnClickListener(this);
         }
 
+        /**
+         * This gets called by the child views during a click. We fetch the date that has been
+         * selected, and then call the onClick handler registered with this adapter, passing that
+         * date.
+         *
+         * @param v the View that was clicked
+         */
         @Override
         public void onClick(View v) {
-            int adapterPosition = getAdapterPosition();
-            String newsItem = mNewsData[adapterPosition];
+            String newsItem = mNewsTextView.getText().toString();
             mClickHandler.onClick(newsItem);
         }
     }
@@ -112,8 +126,26 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
     @Override
     public void onBindViewHolder(NewsAdapterViewHolder newsAdapterViewHolder, int position) {
 
-        // Set the text of the TextView to the news for this list item's position
-        String newsItem = mNewsData[position];
+        // Move the cursor to the appropriate position
+        mCursor.moveToPosition(position);
+
+        /*******************
+         * News Item *
+         *******************/
+
+        /* Read title from the cursor */
+        String title = mCursor.getString(NewsActivity.INDEX_NEWS_TITLE);
+
+        /* Read date from the cursor and get human readable string using our utility method*/
+        long dateInMillis = mCursor.getLong(NewsActivity.INDEX_NEWS_DATE);
+        String dateString = NewsDateUtils.getFriendlyDateString(mContext, dateInMillis, false);
+
+        /* Read name from the cursor */
+        String name = mCursor.getString(NewsActivity.INDEX_NEWS_NAME);
+
+        String newsItem = dateString + " - " + title + " - " + name;
+
+        // Display the summary that we created above
         newsAdapterViewHolder.mNewsTextView.setText(newsItem);
     }
 
@@ -125,21 +157,20 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
      */
     @Override
     public int getItemCount() {
-
-        // Return 0 if mWeatherData is null, or the size of mNewsData if it is not null
-        if (null == mNewsData) return 0;
-        return mNewsData.length;
+        if (null == mCursor) return 0;
+        return mCursor.getCount();
     }
 
     /**
-     * This method is used to set the news on a NewsAdapter if we've already
-     * created one. This is handy when we get new data from the web but don't want to create a
-     * new NewsAdapter to display it.
+     * Swaps the cursor used by the NewsAdapter for its news data. This method is called by
+     * NewsActivity after a load has finished, as well as when the Loader responsible for loading
+     * the weather data is reset. When this method is called, we assume we have a completely new
+     * set of data, so we call notifyDataSetChanged to tell the RecyclerView to update.
      *
-     * @param newsData The new news data to be displayed.
+     * @param newCursor the new cursor to use as ForecastAdapter's data source
      */
-    public void setNewsData(String[] newsData) {
-        mNewsData = newsData;
+    void swapCursor(Cursor newCursor) {
+        mCursor = newCursor;
         notifyDataSetChanged();
     }
 }
