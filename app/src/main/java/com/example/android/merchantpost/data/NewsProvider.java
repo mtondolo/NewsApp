@@ -5,8 +5,10 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * This class serves as the ContentProvider for all of News's data. This class allows us to
@@ -133,8 +135,7 @@ public class NewsProvider extends ContentProvider {
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
     }
-
-
+    
     /**
      * In News, we aren't going to do anything with this method. However, we are required to
      * override it as WeatherProvider extends ContentProvider and getType is an abstract method in
@@ -161,10 +162,57 @@ public class NewsProvider extends ContentProvider {
      *               This must not be null
      * @return nothing in News, but normally the URI for the newly inserted item.
      */
+    @Nullable
     @Override
-    public Uri insert(@NonNull Uri uri, ContentValues values) {
+    public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
         throw new RuntimeException(
                 "We are not implementing insert in News. Use bulkInsert instead");
+    }
+
+    /**
+     * Handles requests to insert a set of new rows. In News, we are only going to be
+     * inserting multiple rows of data at a time from news. There is no use case
+     * for inserting a single row of data into our ContentProvider, and so we are only going to
+     * implement bulkInsert. In a normal ContentProvider's implementation, you will probably want
+     * to provide proper functionality for the insert method as well.
+     *
+     * @param uri    The content:// URI of the insertion request.
+     * @param values An array of sets of column_name/value pairs to add to the database.
+     *               This must not be {@code null}.
+     * @return The number of values that were inserted.
+     */
+    @Override
+    public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        switch (sUriMatcher.match(uri)) {
+
+            // Only perform our implementation of bulkInsert if the URI matches the CODE_NEWS code
+            case CODE_NEWS:
+                db.beginTransaction();
+                int rowsInserted = 0;
+                try {
+                    for (ContentValues value : values) {
+                        long _id = db.insert(NewsContract.NewsEntry.TABLE_NAME, null, value);
+                        if (_id != -1) {
+                            rowsInserted++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+
+                if (rowsInserted > 0) {
+                    getContext().getContentResolver().notifyChange(uri, null);
+                }
+
+                // Return the number of rows inserted from our implementation of bulkInsert
+                return rowsInserted;
+
+            // If the URI does match match CODE_NEWS, return the super implementation of bulkInsert
+            default:
+                return super.bulkInsert(uri, values);
+        }
     }
 
     /**
