@@ -136,6 +136,50 @@ public class NewsProvider extends ContentProvider {
         return cursor;
     }
 
+    /**
+     * Deletes data at a given URI with optional arguments for more fine tuned deletions.
+     *
+     * @param uri           The full URI to query
+     * @param selection     An optional restriction to apply to rows when deleting.
+     * @param selectionArgs Used in conjunction with the selection statement
+     * @return The number of rows deleted
+     */
+    @Override
+    public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
+
+        /* Users of the delete method will expect the number of rows deleted to be returned. */
+        int numRowsDeleted;
+
+        /*
+         * If we pass null as the selection to SQLiteDatabase#delete, our entire table will be
+         * deleted. However, if we do pass null and delete all of the rows in the table, we won't
+         * know how many rows were deleted. According to the documentation for SQLiteDatabase,
+         * passing "1" for the selection will delete all rows and return the number of rows
+         * deleted, which is what the caller of this method expects.
+         */
+        if (null == selection) selection = "1";
+
+        switch (sUriMatcher.match(uri)) {
+            case CODE_NEWS:
+                numRowsDeleted = mOpenHelper.getWritableDatabase().delete(
+                        NewsContract.NewsEntry.TABLE_NAME,
+                        selection,
+                        selectionArgs);
+
+                break;
+
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+
+        /* If we actually deleted any rows, notify that a change has occurred to this URI */
+        if (numRowsDeleted != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+
+        return numRowsDeleted;
+    }
+
 
     /**
      * In News, we aren't going to do anything with this method. However, we are required to
@@ -216,19 +260,7 @@ public class NewsProvider extends ContentProvider {
         }
     }
 
-    /**
-     * Deletes data at a given URI with optional arguments for more fine tuned deletions.
-     *
-     * @param uri           The full URI to query
-     * @param selection     An optional restriction to apply to rows when deleting.
-     * @param selectionArgs Used in conjunction with the selection statement
-     * @return The number of rows deleted
-     */
-    @Override
-    public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
-        throw new RuntimeException("We will implement the delete method!");
-    }
-
+    
     @Override
     public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         throw new RuntimeException("We are not implementing update in Sunshine");
