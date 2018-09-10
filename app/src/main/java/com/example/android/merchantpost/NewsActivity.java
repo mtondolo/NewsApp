@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import com.example.android.merchantpost.data.NewsContract;
 import com.example.android.merchantpost.data.NewsPreferences;
+import com.example.android.merchantpost.utils.FakeDataUtils;
 import com.example.android.merchantpost.utils.JsonUtils;
 import com.example.android.merchantpost.utils.NetworkUtils;
 
@@ -75,6 +76,8 @@ public class NewsActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news);
+
+        FakeDataUtils.insertFakeData(this);
 
         /*
          * Using findViewById, we get a reference to our RecyclerView from xml. This allows us to

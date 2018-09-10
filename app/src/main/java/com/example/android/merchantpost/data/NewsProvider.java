@@ -177,6 +177,7 @@ public class NewsProvider extends ContentProvider {
             getContext().getContentResolver().notifyChange(uri, null);
         }
 
+
         return numRowsDeleted;
     }
 
@@ -260,7 +261,6 @@ public class NewsProvider extends ContentProvider {
         }
     }
 
-    
     @Override
     public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         throw new RuntimeException("We are not implementing update in Sunshine");
