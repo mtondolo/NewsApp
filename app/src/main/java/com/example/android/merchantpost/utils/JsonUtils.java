@@ -53,8 +53,6 @@ public class JsonUtils {
 
         ContentValues[] newsContentValues = new ContentValues[newsArray.length()];
 
-        //long normalizedUtcStartDay = NewsDateUtils.getNormalizedUtcDateForToday();
-
         for (int i = 0; i < newsArray.length(); i++) {
 
             /* These are the values that will be collected */
@@ -69,8 +67,6 @@ public class JsonUtils {
             title = newsItem.getString(NEWS_TITLE);
             source = newsSource.getString(NEWS_SOURCE_NAME);
             date = newsItem.getString(NEWS_DATE);
-
-            //dateTimeMillis = normalizedUtcStartDay + NewsDateUtils.DAY_IN_MILLIS * i;
 
             ContentValues newsValues = new ContentValues();
             newsValues.put(NewsContract.NewsEntry.COLUMN_DATE, date);

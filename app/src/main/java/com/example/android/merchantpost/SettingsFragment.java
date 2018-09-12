@@ -29,7 +29,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
         for (int i = 0; i < count; i++) {
             Preference p = prefScreen.getPreference(i);
             String value = sharedPreferences
-                    .getString(p.getKey(), "bbc-news,cnn,al-jazeera-english,bloomberg,cnbc,espn,bbc-sport");
+                    .getString(p.getKey(), "");
             setPreferenceSummary(p, value);
         }
     }
@@ -52,7 +52,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
         Activity activity = getActivity();
 
         if (key.equals(getString(R.string.pref_new_channel_key))) {
-            // Sync the weather if the channel changes
+            // Sync the news if the channel changes
             NewsSyncUtils.startImmediateSync(activity);
         } else {
             // Update lists of news entries accordingly

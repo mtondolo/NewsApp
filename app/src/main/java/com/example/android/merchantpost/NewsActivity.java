@@ -64,6 +64,7 @@ public class NewsActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news);
+        getSupportActionBar().setElevation(0f);
 
         /*
          * Using findViewById, we get a reference to our RecyclerView from xml. This allows us to
@@ -117,7 +118,8 @@ public class NewsActivity extends AppCompatActivity implements
          */
         getSupportLoaderManager().initLoader(ID_NEWS_LOADER, null, this);
 
-        NewsSyncUtils.startImmediateSync(this);
+        // SunshineSyncUtils's initialize method instead of startImmediateSync
+        NewsSyncUtils.initialize(this);
 
     }
 
