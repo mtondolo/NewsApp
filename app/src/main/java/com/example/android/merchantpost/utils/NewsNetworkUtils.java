@@ -1,10 +1,8 @@
 package com.example.android.merchantpost.utils;
 
-import android.content.Context;
+
 import android.net.Uri;
 import android.util.Log;
-
-import com.example.android.merchantpost.data.NewsPreferences;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,34 +14,25 @@ import java.util.Scanner;
 /**
  * These utilities will be used to communicate with the network.
  */
-public class NetworkUtils {
+public class NewsNetworkUtils {
 
     // Constant for logging
-    private static final String TAG = NetworkUtils.class.getSimpleName();
+    private static final String TAG = NewsNetworkUtils.class.getSimpleName();
 
     final static String NEWS_API_BASE_URL =
-            "https://newsapi.org/v2/top-headlines";
+            "https://newsapi.org/v2/top-headlines?sources=medical-news-today";
 
-    final static String PARAM_QUERY = "sources";
     final static String PARAM_KEY = "apiKey";
 
     final static String apiKey = "641959fcdf1e4463bbf0e95a63efced5";
-    final static String sources = "bbc-news,cnn,al-jazeera-english,bloomberg,cnbc,espn,bbc-sport";
-
-    public static URL getUrl(Context context) {
-        String sourceQuery = NewsPreferences.getPreferredNewsChannel(context);
-        return buildUrlWithSourcesQuery(sourceQuery);
-    }
 
     /**
      * Builds the URL used to query News API.
      *
-     * @param sources
      * @return The URL to use to query the News API.
      */
-    public static URL buildUrlWithSourcesQuery(String sources) {
+    public static URL buildUrlForNews() {
         Uri builtUri = Uri.parse(NEWS_API_BASE_URL).buildUpon()
-                .appendQueryParameter(PARAM_QUERY, sources)
                 .appendQueryParameter(PARAM_KEY, apiKey)
                 .build();
 

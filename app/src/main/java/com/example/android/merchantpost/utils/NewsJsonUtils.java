@@ -11,7 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class JsonUtils {
+public class NewsJsonUtils {
 
     /**
      * This method parses JSON from a web response and returns an array of Strings
@@ -26,21 +26,17 @@ public class JsonUtils {
         // News item. Each news item is an element of the "articles" array
         final String NEWS_LIST = "articles";
 
-        // News source object for the news item
-        final String NEWS_SOURCE = "source";
-
-
         // News headline for the news item
         final String NEWS_TITLE = "title";
 
         // News published date for the news item
         final String NEWS_DATE = "publishedAt";
 
+        // News source name for the news item
+        final String NEWS_AUTHOR = "author";
+
         // News source url for the news item
         final String NEWS_URL = "url";
-
-        // News source name for the news item
-        final String NEWS_SOURCE_NAME = "name";
 
         JSONObject newsJson = new JSONObject(newsJsonStr);
 
@@ -57,21 +53,22 @@ public class JsonUtils {
 
             /* These are the values that will be collected */
             String title;
-            String source;
+            String author;
             String date;
 
             /* Get the JSON object representing the new item */
             JSONObject newsItem = newsArray.getJSONObject(i);
-            JSONObject newsSource = newsItem.getJSONObject(NEWS_SOURCE);
 
             title = newsItem.getString(NEWS_TITLE);
-            source = newsSource.getString(NEWS_SOURCE_NAME);
+            author = newsItem.getString(NEWS_AUTHOR);
             date = newsItem.getString(NEWS_DATE);
 
             ContentValues newsValues = new ContentValues();
-            newsValues.put(NewsContract.NewsEntry.COLUMN_DATE, date);
+
             newsValues.put(NewsContract.NewsEntry.COLUMN_TITLE, title);
-            newsValues.put(NewsContract.NewsEntry.COLUMN_SOURCE, source);
+            newsValues.put(NewsContract.NewsEntry.COLUMN_AUTHOR, author);
+            newsValues.put(NewsContract.NewsEntry.COLUMN_DATE, date);
+
             newsContentValues[i] = newsValues;
         }
 

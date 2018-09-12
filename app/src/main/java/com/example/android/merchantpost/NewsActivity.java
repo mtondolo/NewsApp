@@ -33,7 +33,7 @@ public class NewsActivity extends AppCompatActivity implements
     public static final String[] MAIN_NEWS_PROJECTION = {
             NewsContract.NewsEntry.COLUMN_TITLE,
             NewsContract.NewsEntry.COLUMN_DATE,
-            NewsContract.NewsEntry.COLUMN_SOURCE,
+            NewsContract.NewsEntry.COLUMN_AUTHOR,
     };
 
     /*
@@ -43,7 +43,7 @@ public class NewsActivity extends AppCompatActivity implements
      */
     public static final int INDEX_NEWS_TITLE = 0;
     public static final int INDEX_NEWS_DATE = 1;
-    public static final int INDEX_NEWS_NAME = 2;
+    public static final int INDEX_NEWS_AUTHOR = 2;
 
     /*
      * This ID will be used to identify the Loader responsible for loading our news data. In
@@ -118,7 +118,7 @@ public class NewsActivity extends AppCompatActivity implements
          */
         getSupportLoaderManager().initLoader(ID_NEWS_LOADER, null, this);
 
-        // SunshineSyncUtils's initialize method instead of startImmediateSync
+        // NewsSyncUtils's initialize method instead of startImmediateSync
         NewsSyncUtils.initialize(this);
 
     }

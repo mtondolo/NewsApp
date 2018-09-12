@@ -71,8 +71,8 @@ public class NewsContract {
          */
         public static final String COLUMN_DATE = "date";
 
-        /* name is stored as a String representing the news channel source name*/
-        public static final String COLUMN_SOURCE = "name";
+        /* name is stored as a String representing the news author*/
+        public static final String COLUMN_AUTHOR = "author";
 
     }
 }

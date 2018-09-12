@@ -5,12 +5,10 @@ import android.content.ContentValues;
 import android.content.Context;
 
 import com.example.android.merchantpost.data.NewsContract;
-import com.example.android.merchantpost.utils.JsonUtils;
-import com.example.android.merchantpost.utils.NetworkUtils;
+import com.example.android.merchantpost.utils.NewsJsonUtils;
+import com.example.android.merchantpost.utils.NewsNetworkUtils;
 
 import java.net.URL;
-
-import static com.example.android.merchantpost.utils.JsonUtils.getSimpleNewsStringsFromJson;
 
 public class NewsSyncTask {
 
@@ -30,13 +28,13 @@ public class NewsSyncTask {
              * news.
              *
              */
-            URL newsRequestUrl = NetworkUtils.getUrl(context);
+            URL newsRequestUrl = NewsNetworkUtils.buildUrlForNews();
 
             /* Use the URL to retrieve the JSON */
-            String jsonNewsResponse = NetworkUtils.getResponseFromHttpUrl(newsRequestUrl);
+            String jsonNewsResponse = NewsNetworkUtils.getResponseFromHttpUrl(newsRequestUrl);
 
             /* Parse the JSON into a list of news values */
-            ContentValues[] newsValues = JsonUtils.getSimpleNewsStringsFromJson(context, jsonNewsResponse);
+            ContentValues[] newsValues = NewsJsonUtils.getSimpleNewsStringsFromJson(context, jsonNewsResponse);
 
             /*
              * In cases where our JSON contained an error code, getWeatherContentValuesFromJson

@@ -24,7 +24,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 /**
- * {@link NewsAdapter} exposes a list of news items
+ * {@link NewsAdapter} exposes a list of weather forecasts
  * from a {@link android.database.Cursor} to a {@link android.support.v7.widget.RecyclerView}.
  */
 public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterViewHolder> {
@@ -131,16 +131,12 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
         // Move the cursor to the appropriate position
         mCursor.moveToPosition(position);
 
-        /*******************
-         * News Item *
-         *******************/
-
         /* Read title, name and date from the cursor */
         String title = mCursor.getString(NewsActivity.INDEX_NEWS_TITLE);
-        String name = mCursor.getString(NewsActivity.INDEX_NEWS_NAME);
+        String author = mCursor.getString(NewsActivity.INDEX_NEWS_AUTHOR);
         String date = mCursor.getString(NewsActivity.INDEX_NEWS_DATE);
 
-        String newsItem = title + " - " + date + " - " + name;
+        String newsItem = title + " - " + author + " - " + date;
 
         // Display the summary that we created above
         newsAdapterViewHolder.mNewsTextView.setText(newsItem);

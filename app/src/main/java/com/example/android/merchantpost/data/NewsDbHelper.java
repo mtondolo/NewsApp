@@ -35,7 +35,7 @@ public class NewsDbHelper extends SQLiteOpenHelper {
      * method will not be called.
      *
      */
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     public NewsDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -66,7 +66,7 @@ public class NewsDbHelper extends SQLiteOpenHelper {
                         NewsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         NewsEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
                         NewsEntry.COLUMN_DATE + " INTEGER NOT NULL, " +
-                        NewsEntry.COLUMN_SOURCE + " TEXT NOT NULL" + ");";
+                        NewsEntry.COLUMN_AUTHOR + " TEXT NOT NULL);";
 
         /*
          * After we've spelled out our SQLite table creation statement above, we actually execute
@@ -93,7 +93,7 @@ public class NewsDbHelper extends SQLiteOpenHelper {
 
         // Drop the weather table if it exists
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + NewsEntry.TABLE_NAME);
-        
+
         // Pass in the SQLiteDatabase (passed in to onUpgrade)
         onCreate(sqLiteDatabase);
 
