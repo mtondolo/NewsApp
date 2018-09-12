@@ -1,7 +1,10 @@
 package com.example.android.merchantpost.utils;
 
+import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
+
+import com.example.android.merchantpost.data.NewsPreferences;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,13 +30,18 @@ public class NetworkUtils {
     final static String apiKey = "641959fcdf1e4463bbf0e95a63efced5";
     final static String sources = "bbc-news,cnn,al-jazeera-english,bloomberg,cnbc,espn,bbc-sport";
 
+    public static URL getUrl(Context context) {
+        String sourceQuery = NewsPreferences.getPreferredNewsChannel(context);
+        return buildUrlWithSourcesQuery(sourceQuery);
+    }
+
     /**
      * Builds the URL used to query News API.
      *
      * @param sources
      * @return The URL to use to query the News API.
      */
-    public static URL buildUrl(String sources) {
+    public static URL buildUrlWithSourcesQuery(String sources) {
         Uri builtUri = Uri.parse(NEWS_API_BASE_URL).buildUpon()
                 .appendQueryParameter(PARAM_QUERY, sources)
                 .appendQueryParameter(PARAM_KEY, apiKey)

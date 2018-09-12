@@ -1,7 +1,11 @@
+
 package com.example.android.merchantpost.utils;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.text.TextUtils;
+
+import com.example.android.merchantpost.data.NewsContract;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -16,7 +20,7 @@ public class JsonUtils {
      * @return Array of Strings describing weather data
      * @throws JSONException If JSON data cannot be properly parsed
      */
-    public static String[] getSimpleNewsStringsFromJson(Context context, String newsJsonStr)
+    public static ContentValues[] getSimpleNewsStringsFromJson(Context context, String newsJsonStr)
             throws JSONException {
 
         // News item. Each news item is an element of the "articles" array
@@ -33,13 +37,10 @@ public class JsonUtils {
         final String NEWS_DATE = "publishedAt";
 
         // News source url for the news item
-        final String NEWS_URL="url";
+        final String NEWS_URL = "url";
 
         // News source name for the news item
         final String NEWS_SOURCE_NAME = "name";
-
-        // String array to hold each news item String */
-        String[] parsedNewsData = null;
 
         JSONObject newsJson = new JSONObject(newsJsonStr);
 
@@ -50,7 +51,9 @@ public class JsonUtils {
 
         JSONArray newsArray = newsJson.getJSONArray(NEWS_LIST);
 
-        parsedNewsData = new String[newsArray.length()];
+        ContentValues[] newsContentValues = new ContentValues[newsArray.length()];
+
+        //long normalizedUtcStartDay = NewsDateUtils.getNormalizedUtcDateForToday();
 
         for (int i = 0; i < newsArray.length(); i++) {
 
@@ -58,24 +61,26 @@ public class JsonUtils {
             String title;
             String source;
             String date;
-            String url;
 
             /* Get the JSON object representing the new item */
             JSONObject newsItem = newsArray.getJSONObject(i);
-
-            // Extract the value for the key called "name"
             JSONObject newsSource = newsItem.getJSONObject(NEWS_SOURCE);
 
-            // Extract the value for the key called "title" and "date" and "name"
             title = newsItem.getString(NEWS_TITLE);
-            date = newsItem.getString(NEWS_DATE);
-            url = newsItem.getString(NEWS_URL);
             source = newsSource.getString(NEWS_SOURCE_NAME);
+            date = newsItem.getString(NEWS_DATE);
 
-            parsedNewsData[i] = title + " - " + date + " - " + source;
+            //dateTimeMillis = normalizedUtcStartDay + NewsDateUtils.DAY_IN_MILLIS * i;
+
+            ContentValues newsValues = new ContentValues();
+            newsValues.put(NewsContract.NewsEntry.COLUMN_DATE, date);
+            newsValues.put(NewsContract.NewsEntry.COLUMN_TITLE, title);
+            newsValues.put(NewsContract.NewsEntry.COLUMN_SOURCE, source);
+            newsContentValues[i] = newsValues;
         }
 
-        return parsedNewsData;
+        return newsContentValues;
     }
 
 }
+

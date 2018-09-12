@@ -1,46 +1,34 @@
 package com.example.android.merchantpost;
 
 import android.content.Context;
-import android.content.CursorLoader;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.merchantpost.data.NewsContract;
-import com.example.android.merchantpost.data.NewsPreferences;
-import com.example.android.merchantpost.utils.FakeDataUtils;
-import com.example.android.merchantpost.utils.JsonUtils;
-import com.example.android.merchantpost.utils.NetworkUtils;
-
-import java.net.URL;
+import com.example.android.merchantpost.sync.NewsSyncUtils;
 
 public class NewsActivity extends AppCompatActivity implements
         NewsAdapter.NewsAdapterOnClickHandler,
-        LoaderManager.LoaderCallbacks<Cursor>{
+        LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = NewsActivity.class.getSimpleName();
 
     /*
-     * The columns of data that we are interested in displaying within our MainActivity's list of
-     * weather data.
+     * The columns of data that we are interested in displaying within our NewsActivity's list of
+     * news data.
      */
     public static final String[] MAIN_NEWS_PROJECTION = {
             NewsContract.NewsEntry.COLUMN_TITLE,
@@ -58,7 +46,7 @@ public class NewsActivity extends AppCompatActivity implements
     public static final int INDEX_NEWS_NAME = 2;
 
     /*
-     * This ID will be used to identify the Loader responsible for loading our weather forecast. In
+     * This ID will be used to identify the Loader responsible for loading our news data. In
      * some cases, one Activity can deal with many Loaders. However, in our case, there is only one.
      * We will still use this ID to initialize the loader and create the loader for best practice.
      * Please note that 44 was chosen arbitrarily. You can use whatever number you like, so long as
@@ -76,8 +64,6 @@ public class NewsActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news);
-
-        FakeDataUtils.insertFakeData(this);
 
         /*
          * Using findViewById, we get a reference to our RecyclerView from xml. This allows us to
@@ -114,7 +100,7 @@ public class NewsActivity extends AppCompatActivity implements
          * The NewsAdapter is responsible for linking our news data with the Views that
          * will end up displaying our news data.
          */
-        mNewsAdapter = new NewsAdapter(this,this);
+        mNewsAdapter = new NewsAdapter(this, this);
 
         /*
          * Use mRecyclerView.setAdapter and pass in mNewsAdapter.
@@ -130,6 +116,8 @@ public class NewsActivity extends AppCompatActivity implements
          * the last created loader is re-used.
          */
         getSupportLoaderManager().initLoader(ID_NEWS_LOADER, null, this);
+
+        NewsSyncUtils.startImmediateSync(this);
 
     }
 
@@ -177,8 +165,8 @@ public class NewsActivity extends AppCompatActivity implements
     /**
      * Instantiate and return a new Loader for the given ID.
      *
-     * @param loaderId        The ID whose loader is to be created.
-     * @param bundle Any arguments supplied by the caller.
+     * @param loaderId The ID whose loader is to be created.
+     * @param bundle   Any arguments supplied by the caller.
      * @return Return a new Loader instance that is ready to start loading.
      */
     @Override
@@ -187,16 +175,19 @@ public class NewsActivity extends AppCompatActivity implements
         switch (loaderId) {
 
             case ID_NEWS_LOADER:
-                /* URI for all rows of weather data in our weather table */
+
+                /* URI for all rows of news data in our news table */
                 Uri newsQueryUri = NewsContract.NewsEntry.CONTENT_URI;
-                /* Sort order: Ascending by date */
-                String sortOrder = NewsContract.NewsEntry.COLUMN_DATE + " ASC";
+
+                /* Sort order: Descending by date */
+                String sortOrder = NewsContract.NewsEntry.COLUMN_DATE + " DESC";
+
                 /*
                  * A SELECTION in SQL declares which rows you'd like to return. In our case, we
                  * want all weather data from today onwards that is stored in our news table.
                  * We created a handy method to do that in our NewsEntry class.
                  */
-                String selection = NewsContract.NewsEntry.getSqlSelectForTodayOnwards();
+                String selection = NewsContract.NewsEntry.COLUMN_DATE;
 
                 return new android.support.v4.content.CursorLoader(this,
                         newsQueryUri,

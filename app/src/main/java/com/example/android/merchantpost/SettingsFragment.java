@@ -1,11 +1,15 @@
 package com.example.android.merchantpost;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
+
+import com.example.android.merchantpost.data.NewsContract;
+import com.example.android.merchantpost.sync.NewsSyncUtils;
 
 /**
  * The SettingsFragment serves as the display for all of the user's settings.
@@ -24,7 +28,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
         int count = prefScreen.getPreferenceCount();
         for (int i = 0; i < count; i++) {
             Preference p = prefScreen.getPreference(i);
-            String value = sharedPreferences.getString(p.getKey(), "");
+            String value = sharedPreferences
+                    .getString(p.getKey(), "bbc-news,cnn,al-jazeera-english,bloomberg,cnbc,espn,bbc-sport");
             setPreferenceSummary(p, value);
         }
     }
@@ -44,6 +49,16 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        Activity activity = getActivity();
+
+        if (key.equals(getString(R.string.pref_new_channel_key))) {
+            // Sync the weather if the channel changes
+            NewsSyncUtils.startImmediateSync(activity);
+        } else {
+            // Update lists of news entries accordingly
+            activity.getContentResolver().notifyChange(NewsContract.NewsEntry.CONTENT_URI, null);
+        }
+
         // Figure out which preference was changed
         Preference preference = findPreference(key);
         if (null != preference) {

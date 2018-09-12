@@ -18,8 +18,6 @@ package com.example.android.merchantpost.data;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
-import com.example.android.merchantpost.utils.NewsDateUtils;
-
 /**
  * Defines table and column names for the news database. This class is not necessary, but keeps
  * the code organized.
@@ -75,18 +73,6 @@ public class NewsContract {
 
         /* name is stored as a String representing the news channel source name*/
         public static final String COLUMN_SOURCE = "name";
-
-        /**
-         * Returns just the selection part of the weather query from a normalized today value.
-         * This is used to get a weather forecast from today's date. To make this easy to use
-         * in compound selection, we embed today's date as an argument in the query.
-         *
-         * @return The selection part of the weather query for today onwards
-         */
-        public static String getSqlSelectForTodayOnwards() {
-            long normalizedUtcNow = NewsDateUtils.normalizeDate(System.currentTimeMillis());
-            return NewsContract.NewsEntry.COLUMN_DATE + " >= " + normalizedUtcNow;
-        }
 
     }
 }

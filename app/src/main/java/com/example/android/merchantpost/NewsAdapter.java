@@ -23,8 +23,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.android.merchantpost.utils.NewsDateUtils;
-
+/**
+ * {@link NewsAdapter} exposes a list of news items
+ * from a {@link android.database.Cursor} to a {@link android.support.v7.widget.RecyclerView}.
+ */
 public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterViewHolder> {
 
     /* The context we use to utility methods, app resources and layout inflaters */
@@ -133,17 +135,12 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
          * News Item *
          *******************/
 
-        /* Read title from the cursor */
+        /* Read title, name and date from the cursor */
         String title = mCursor.getString(NewsActivity.INDEX_NEWS_TITLE);
-
-        /* Read date from the cursor and get human readable string using our utility method*/
-        long dateInMillis = mCursor.getLong(NewsActivity.INDEX_NEWS_DATE);
-        String dateString = NewsDateUtils.getFriendlyDateString(mContext, dateInMillis, false);
-
-        /* Read name from the cursor */
         String name = mCursor.getString(NewsActivity.INDEX_NEWS_NAME);
+        String date = mCursor.getString(NewsActivity.INDEX_NEWS_DATE);
 
-        String newsItem = dateString + " - " + title + " - " + name;
+        String newsItem = title + " - " + date + " - " + name;
 
         // Display the summary that we created above
         newsAdapterViewHolder.mNewsTextView.setText(newsItem);
