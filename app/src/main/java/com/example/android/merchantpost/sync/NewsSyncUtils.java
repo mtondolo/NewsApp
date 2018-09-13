@@ -8,10 +8,84 @@ import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
 import com.example.android.merchantpost.data.NewsContract;
+import com.firebase.jobdispatcher.Constraint;
+import com.firebase.jobdispatcher.Driver;
+import com.firebase.jobdispatcher.FirebaseJobDispatcher;
+import com.firebase.jobdispatcher.GooglePlayDriver;
+import com.firebase.jobdispatcher.Job;
+import com.firebase.jobdispatcher.Lifetime;
+import com.firebase.jobdispatcher.Trigger;
+
+import java.util.concurrent.TimeUnit;
 
 public class NewsSyncUtils {
 
+    /*
+     * Interval at which to sync with the news.
+     */
+    private static final int SYNC_INTERVAL_HOURS = 3;
+    private static final int SYNC_INTERVAL_SECONDS = (int) TimeUnit.HOURS.toSeconds(SYNC_INTERVAL_HOURS);
+    private static final int SYNC_FLEXTIME_SECONDS = SYNC_INTERVAL_SECONDS / 3;
+
     private static boolean sInitialized;
+
+    //  Sync tag to identify our sync job
+    private static final String NEWS_SYNC_TAG = "news-sync";
+
+    /**
+     * Schedules a repeating sync of news data using FirebaseJobDispatcher.
+     *
+     * @param context Context used to create the GooglePlayDriver that powers the
+     *                FirebaseJobDispatcher
+     */
+    static void scheduleFirebaseJobDispatcherSync(@NonNull final Context context) {
+
+        Driver driver = new GooglePlayDriver(context);
+        FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(driver);
+
+        /* Create the Job to periodically sync News */
+        Job syncNewsJob = dispatcher.newJobBuilder()
+                /* The Service that will be used to sync News's data */
+                .setService(NewsFirebaseJobService.class)
+                /* Set the UNIQUE tag used to identify this Job */
+                .setTag(NEWS_SYNC_TAG)
+                /*
+                 * Network constraints on which this Job should run. We choose to run on any
+                 * network, but we can also choose to run only on un-metered networks or when the
+                 * device is charging. It might be a good idea to include a preference for this,
+                 * as some users may not want to download any data on their mobile plan. ($$$)
+                 */
+                .setConstraints(Constraint.ON_ANY_NETWORK)
+                /*
+                 * setLifetime sets how long this job should persist. The options are to keep the
+                 * Job "forever" or to have it die the next time the device boots up.
+                 */
+                .setLifetime(Lifetime.FOREVER)
+                /*
+                 * We want News's data to stay up to date, so we tell this Job to recur.
+                 */
+                .setRecurring(true)
+                /*
+                 * We want the news data to be synced every 3 to 4 hours. The first argument for
+                 * Trigger's static executionWindow method is the start of the time frame when the
+                 * sync should be performed. The second argument is the latest point in time at
+                 * which the data should be synced. Please note that this end time is not
+                 * guaranteed, but is more of a guideline for FirebaseJobDispatcher to go off of.
+                 */
+                .setTrigger(Trigger.executionWindow(
+                        SYNC_INTERVAL_SECONDS,
+                        SYNC_INTERVAL_SECONDS + SYNC_FLEXTIME_SECONDS))
+                /*
+                 * If a Job with the tag with provided already exists, this new job will replace
+                 * the old one.
+                 */
+                .setReplaceCurrent(true)
+                /* Once the Job is ready, call the builder's build method to return the Job */
+                .build();
+
+        /* Schedule the Job with the dispatcher */
+        dispatcher.schedule(syncNewsJob);
+    }
 
     /**
      * Creates periodic sync tasks and checks to see if an immediate sync is required. If an
@@ -32,15 +106,21 @@ public class NewsSyncUtils {
         sInitialized = true;
 
         /*
+         * This method call triggers News to create its task to synchronize news data
+         * periodically.
+         */
+        scheduleFirebaseJobDispatcherSync(context);
+
+        /*
          * We need to check to see if our ContentProvider has data to display in our news
          * list. However, performing a query on the main thread is a bad idea as this may
          * cause our UI to lag. Therefore, we create a thread in which we will run the query
          * to check the contents of our ContentProvider.
          */
-        new AsyncTask<Void, Void, Void>() {
+        Thread checkForEmpty = new Thread(new Runnable() {
 
             @Override
-            protected Void doInBackground(Void... voids) {
+            public void run() {
 
                 /* URI for every row of news data in our news table*/
                 Uri newsQueryUri = NewsContract.NewsEntry.CONTENT_URI;
@@ -73,10 +153,12 @@ public class NewsSyncUtils {
 
                 /* Close the Cursor to avoid memory leaks! */
                 cursor.close();
-                return null;
-            }
-        }.execute();
 
+            }
+        });
+
+        /* Finally, once the thread is prepared, fire it off to perform our checks. */
+        checkForEmpty.start();
     }
 
     /**
