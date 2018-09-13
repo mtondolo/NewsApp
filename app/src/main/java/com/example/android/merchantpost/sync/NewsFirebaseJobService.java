@@ -15,8 +15,11 @@
  */
 package com.example.android.merchantpost.sync;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 
 import com.firebase.jobdispatcher.Job;
 import com.firebase.jobdispatcher.JobParameters;
@@ -27,23 +30,15 @@ public class NewsFirebaseJobService extends JobService {
 
     private AsyncTask<Void, Void, Void> mFetchNewsTask;
 
-    /**
-     * The entry point to our Job. Implementations should offload work to another thread of
-     * execution as soon as possible.
-     * <p>
-     * This is called by the Job Dispatcher to tell us we should start our job. Keep in mind this
-     * method is run on the application's main thread, so we need to offload work to a background
-     * thread.
-     *
-     * @return whether there is more work remaining.
-     */
     @Override
     public boolean onStartJob(final JobParameters jobParameters) {
+
         mFetchNewsTask = new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
                 Context context = getApplicationContext();
                 NewsSyncTask.syncNews(context);
+                jobFinished(jobParameters, false);
                 return null;
             }
 

@@ -49,25 +49,33 @@ public class NewsJsonUtils {
 
         ContentValues[] newsContentValues = new ContentValues[newsArray.length()];
 
+        long normalizedUtcStartDay = NewsDateUtils.getNormalizedUtcDateForToday();
+
         for (int i = 0; i < newsArray.length(); i++) {
 
             /* These are the values that will be collected */
             String title;
             String author;
-            String date;
+            long dateTimeMillis;
 
             /* Get the JSON object representing the new item */
             JSONObject newsItem = newsArray.getJSONObject(i);
 
             title = newsItem.getString(NEWS_TITLE);
             author = newsItem.getString(NEWS_AUTHOR);
-            date = newsItem.getString(NEWS_DATE);
+            dateTimeMillis = newsItem.getLong(NEWS_DATE);
+
+            /*
+             * We ignore all the datetime values embedded in the JSON and assume that
+             * the values are returned in-order by day (which is not guaranteed to be correct).
+             */
+            //dateTimeMillis = normalizedUtcStartDay + NewsDateUtils.DAY_IN_MILLIS;
 
             ContentValues newsValues = new ContentValues();
 
             newsValues.put(NewsContract.NewsEntry.COLUMN_TITLE, title);
             newsValues.put(NewsContract.NewsEntry.COLUMN_AUTHOR, author);
-            newsValues.put(NewsContract.NewsEntry.COLUMN_DATE, date);
+            newsValues.put(NewsContract.NewsEntry.COLUMN_DATE, dateTimeMillis);
 
             newsContentValues[i] = newsValues;
         }

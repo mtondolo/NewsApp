@@ -23,6 +23,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.android.merchantpost.utils.NewsDateUtils;
+
 /**
  * {@link NewsAdapter} exposes a list of weather forecasts
  * from a {@link android.database.Cursor} to a {@link android.support.v7.widget.RecyclerView}.
@@ -134,9 +136,12 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
         /* Read title, name and date from the cursor */
         String title = mCursor.getString(NewsActivity.INDEX_NEWS_TITLE);
         String author = mCursor.getString(NewsActivity.INDEX_NEWS_AUTHOR);
-        String date = mCursor.getString(NewsActivity.INDEX_NEWS_DATE);
+        //String date = mCursor.getString(NewsActivity.INDEX_NEWS_DATE);
 
-        String newsItem = title + " - " + author + " - " + date;
+        long dateInMillis = mCursor.getLong(NewsActivity.INDEX_NEWS_DATE);
+        //String dateString = NewsDateUtils.getFriendlyDateString(mContext, dateInMillis, false);
+
+        String newsItem = title + " - " + author + " - " + dateInMillis;
 
         // Display the summary that we created above
         newsAdapterViewHolder.mNewsTextView.setText(newsItem);

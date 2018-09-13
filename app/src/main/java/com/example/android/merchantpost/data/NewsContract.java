@@ -74,5 +74,19 @@ public class NewsContract {
         /* name is stored as a String representing the news author*/
         public static final String COLUMN_AUTHOR = "author";
 
+        /**
+         * Builds a URI that adds the weather date to the end of the forecast content URI path.
+         * This is used to query details about a single weather entry by date. This is what we
+         * use for the detail view query. We assume a normalized date is passed to this method.
+         *
+         * @param date Normalized date in milliseconds
+         * @return Uri to query details about a single weather entry
+         */
+        public static Uri buildNewsUriWithDate(long date) {
+            return CONTENT_URI.buildUpon()
+                    .appendPath(Long.toString(date))
+                    .build();
+        }
+
     }
 }

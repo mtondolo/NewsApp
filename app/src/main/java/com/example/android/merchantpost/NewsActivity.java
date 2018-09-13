@@ -24,8 +24,6 @@ public class NewsActivity extends AppCompatActivity implements
         NewsAdapter.NewsAdapterOnClickHandler,
         LoaderManager.LoaderCallbacks<Cursor> {
 
-    private static final String TAG = NewsActivity.class.getSimpleName();
-
     /*
      * The columns of data that we are interested in displaying within our NewsActivity's list of
      * news data.
