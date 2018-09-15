@@ -20,7 +20,7 @@ public class NewsJsonUtils {
      * @return Array of Strings describing weather data
      * @throws JSONException If JSON data cannot be properly parsed
      */
-    public static ContentValues[] getSimpleNewsStringsFromJson(Context context, String newsJsonStr)
+    public static ContentValues[] getNewsContentValuesFromJson(String newsJsonStr)
             throws JSONException {
 
         // News item. Each news item is an element of the "articles" array

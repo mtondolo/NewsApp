@@ -34,7 +34,7 @@ public class NewsSyncTask {
             String jsonNewsResponse = NewsNetworkUtils.getResponseFromHttpUrl(newsRequestUrl);
 
             /* Parse the JSON into a list of news values */
-            ContentValues[] newsValues = NewsJsonUtils.getSimpleNewsStringsFromJson(context, jsonNewsResponse);
+            ContentValues[] newsValues = NewsJsonUtils.getNewsContentValuesFromJson(jsonNewsResponse);
 
             /*
              * In cases where our JSON contained an error code, getWeatherContentValuesFromJson

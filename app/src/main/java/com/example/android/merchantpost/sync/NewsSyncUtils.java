@@ -23,9 +23,14 @@ public class NewsSyncUtils {
     /*
      * Interval at which to sync with the news.
      */
-    private static final int SYNC_INTERVAL_HOURS = 3;
+   /* private static final int SYNC_INTERVAL_HOURS = 3;
     private static final int SYNC_INTERVAL_SECONDS = (int) TimeUnit.HOURS.toSeconds(SYNC_INTERVAL_HOURS);
-    private static final int SYNC_FLEXTIME_SECONDS = SYNC_INTERVAL_SECONDS / 3;
+    private static final int SYNC_FLEXTIME_SECONDS = SYNC_INTERVAL_SECONDS / 3;*/
+
+
+    private static final int REMINDER_INTERVAL_MINUTES = 1;
+    private static final int REMINDER_INTERVAL_SECONDS = (int) (TimeUnit.MINUTES.toSeconds(REMINDER_INTERVAL_MINUTES));
+    private static final int SYNC_FLEXTIME_SECONDS = REMINDER_INTERVAL_SECONDS;
 
     private static boolean sInitialized;
 
@@ -73,8 +78,8 @@ public class NewsSyncUtils {
                  * guaranteed, but is more of a guideline for FirebaseJobDispatcher to go off of.
                  */
                 .setTrigger(Trigger.executionWindow(
-                        SYNC_INTERVAL_SECONDS,
-                        SYNC_INTERVAL_SECONDS + SYNC_FLEXTIME_SECONDS))
+                        REMINDER_INTERVAL_SECONDS,
+                        REMINDER_INTERVAL_SECONDS + SYNC_FLEXTIME_SECONDS))
                 /*
                  * If a Job with the tag with provided already exists, this new job will replace
                  * the old one.
