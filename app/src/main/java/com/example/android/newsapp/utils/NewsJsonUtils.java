@@ -1,11 +1,10 @@
 
-package com.example.android.merchantpost.utils;
+package com.example.android.newsapp.utils;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.text.TextUtils;
 
-import com.example.android.merchantpost.data.NewsContract;
+import com.example.android.newsapp.data.NewsContract;
 
 import org.json.JSONArray;
 import org.json.JSONException;

@@ -1,13 +1,12 @@
-package com.example.android.merchantpost.sync;
+package com.example.android.newsapp.sync;
 
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
-import com.example.android.merchantpost.data.NewsContract;
+import com.example.android.newsapp.data.NewsContract;
 import com.firebase.jobdispatcher.Constraint;
 import com.firebase.jobdispatcher.Driver;
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;

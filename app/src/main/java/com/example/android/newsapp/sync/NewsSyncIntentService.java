@@ -1,4 +1,4 @@
-package com.example.android.merchantpost.sync;
+package com.example.android.newsapp.sync;
 
 import android.app.IntentService;
 import android.content.Intent;

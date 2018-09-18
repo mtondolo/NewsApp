@@ -11,9 +11,9 @@
      limitations under the License.
 -->
 <resources>
-    <string name="app_name">Merchant Post</string>
+    <string name="app_name">NewsApp</string>
     <string name="error_message">An error has occurred. Please try again.</string>
     <string name="action_settings">Settings</string>
-    <string name="content_authority">com.example.android.merchantpost</string>
+    <string name="content_authority">com.example.android.newsapp</string>
     <string name="settings_title">Settings</string>
 </resources>

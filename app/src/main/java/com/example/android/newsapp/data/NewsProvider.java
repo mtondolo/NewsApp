@@ -1,4 +1,4 @@
-package com.example.android.merchantpost.data;
+package com.example.android.newsapp.data;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -46,7 +46,7 @@ public class NewsProvider extends ContentProvider {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String authority = NewsContract.CONTENT_AUTHORITY;
 
-        /* This URI is content://com.example.android.merchantpost/news/ */
+        /* This URI is content://com.example.android.newsapp/news/ */
         matcher.addURI(authority, NewsContract.PATH_NEWS, CODE_NEWS);
 
         return matcher;

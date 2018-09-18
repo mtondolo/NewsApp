@@ -1,4 +1,4 @@
-package com.example.android.merchantpost;
+package com.example.android.newsapp;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;

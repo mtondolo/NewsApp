@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.merchantpost;
+package com.example.android.newsapp;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;

@@ -1,4 +1,4 @@
-package com.example.android.merchantpost.utils;
+package com.example.android.newsapp.utils;
 
 
 import android.net.Uri;

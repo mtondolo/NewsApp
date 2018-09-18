@@ -1,12 +1,12 @@
-package com.example.android.merchantpost.sync;
+package com.example.android.newsapp.sync;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 
-import com.example.android.merchantpost.data.NewsContract;
-import com.example.android.merchantpost.utils.NewsJsonUtils;
-import com.example.android.merchantpost.utils.NewsNetworkUtils;
+import com.example.android.newsapp.data.NewsContract;
+import com.example.android.newsapp.utils.NewsJsonUtils;
+import com.example.android.newsapp.utils.NewsNetworkUtils;
 
 import java.net.URL;
 

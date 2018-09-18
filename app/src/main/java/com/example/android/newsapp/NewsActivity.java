@@ -1,4 +1,4 @@
-package com.example.android.merchantpost;
+package com.example.android.newsapp;
 
 import android.content.Context;
 import android.content.Intent;
@@ -17,8 +17,8 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.example.android.merchantpost.data.NewsContract;
-import com.example.android.merchantpost.sync.NewsSyncUtils;
+import com.example.android.newsapp.data.NewsContract;
+import com.example.android.newsapp.sync.NewsSyncUtils;
 
 public class NewsActivity extends AppCompatActivity implements
         NewsAdapter.NewsAdapterOnClickHandler,
