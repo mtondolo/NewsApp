@@ -15,11 +15,9 @@
  */
 package com.example.android.merchantpost.sync;
 
-import android.annotation.TargetApi;
+
 import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Build;
-import android.support.annotation.RequiresApi;
 
 import com.firebase.jobdispatcher.Job;
 import com.firebase.jobdispatcher.JobParameters;
@@ -55,10 +53,6 @@ public class NewsFirebaseJobService extends JobService {
     /**
      * Called when the scheduling engine has decided to interrupt the execution of a running job,
      * most likely because the runtime constraints associated with the job are no longer satisfied.
-     *
-     * @return whether the job should be retried
-     * @see Job.Builder#setRetryStrategy(RetryStrategy)
-     * @see RetryStrategy
      */
     @Override
     public boolean onStopJob(JobParameters jobParameters) {

@@ -20,10 +20,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 
 /**
- * SettingsActivity is responsible for displaying the {@link SettingsFragment}. It is also
- * responsible for orchestrating proper navigation when the up button is clicked. When the up
- * button is clicked from the SettingsActivity, we want to navigate to the Activity that the user
- * came from to get to the SettingsActivity.
+ * SettingsActivity is responsible for displaying the {@link SettingsFragment}.
  */
 public class SettingsActivity extends AppCompatActivity {
 

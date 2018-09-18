@@ -23,8 +23,14 @@ public class NewsSyncUtils {
     /*
      * Interval at which to sync with the news.
      */
-    private static final int SYNC_INTERVAL_MINUTES = 1;
-    private static final int REMINDER_INTERVAL_SECONDS= (int) TimeUnit.HOURS.toSeconds(SYNC_INTERVAL_MINUTES);
+   /* private static final int SYNC_INTERVAL_HOURS = 3;
+    private static final int SYNC_INTERVAL_SECONDS = (int) TimeUnit.HOURS.toSeconds(SYNC_INTERVAL_HOURS);
+    private static final int SYNC_FLEXTIME_SECONDS = SYNC_INTERVAL_SECONDS / 3;*/
+
+
+    // These  settings are merely for testing purposes, the recommended settings are the one above.
+    private static final int REMINDER_INTERVAL_MINUTES = 1;
+    private static final int REMINDER_INTERVAL_SECONDS = (int) (TimeUnit.MINUTES.toSeconds(REMINDER_INTERVAL_MINUTES));
     private static final int SYNC_FLEXTIME_SECONDS = REMINDER_INTERVAL_SECONDS;
 
     private static boolean sInitialized;
@@ -34,9 +40,6 @@ public class NewsSyncUtils {
 
     /**
      * Schedules a repeating sync of news data using FirebaseJobDispatcher.
-     *
-     * @param context Context used to create the GooglePlayDriver that powers the
-     *                FirebaseJobDispatcher
      */
     static void scheduleFirebaseJobDispatcherSync(@NonNull final Context context) {
         Driver driver = new GooglePlayDriver(context);
@@ -50,6 +53,10 @@ public class NewsSyncUtils {
                 .setTrigger(Trigger.executionWindow(
                         REMINDER_INTERVAL_SECONDS,
                         REMINDER_INTERVAL_SECONDS + SYNC_FLEXTIME_SECONDS))
+                /*
+                 * If a Job with the tag with provided already exists, this new job will replace
+                 * the old one.
+                 */
                 .setReplaceCurrent(true)
                 .build();
         dispatcher.schedule(syncNewsJob);
@@ -58,9 +65,6 @@ public class NewsSyncUtils {
     /**
      * Creates periodic sync tasks and checks to see if an immediate sync is required. If an
      * immediate sync is required, this method will take care of making sure that sync occurs.
-     *
-     * @param context Context that will be passed to other methods and used to access the
-     *                ContentResolver
      */
     synchronized public static void initialize(@NonNull final Context context) {
         if (sInitialized) return;
@@ -91,8 +95,6 @@ public class NewsSyncUtils {
     /**
      * Helper method to perform a sync immediately using an IntentService for asynchronous
      * execution.
-     *
-     * @param context The Context used to start the IntentService for the sync.
      */
     public static void startImmediateSync(@NonNull final Context context) {
         Intent intentToSyncImmediately = new Intent(context, NewsSyncIntentService.class);

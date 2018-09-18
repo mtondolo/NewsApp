@@ -39,13 +39,8 @@ public class NewsContract {
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
     /*
-     * Possible paths that can be appended to BASE_CONTENT_URI to form valid URI's that News
-     * can handle. For instance,
-     *
-     *     content://com.example.android.merchantpost/news/
-     *     [           BASE_CONTENT_URI         ][ PATH_NEWS ]
-     *
-     * is a valid path for looking at news data.
+     * Path that can be appended to BASE_CONTENT_URI to form valid URI's that News
+     * can handle.
      *
      */
     public static final String PATH_NEWS = "news";
@@ -61,32 +56,10 @@ public class NewsContract {
         /* Used internally as the name of our news table. */
         public static final String TABLE_NAME = "news";
 
-        /* title is stored as a String representing headline */
+        /* title, date and author are stored representing their values*/
         public static final String COLUMN_TITLE = "title";
-
-        /*
-         * The date column will store the UTC date that correlates to the local date for which
-         * each particular news item represents.
-         *
-         */
         public static final String COLUMN_DATE = "date";
-
-        /* name is stored as a String representing the news author*/
         public static final String COLUMN_AUTHOR = "author";
-
-        /**
-         * Builds a URI that adds the weather date to the end of the forecast content URI path.
-         * This is used to query details about a single weather entry by date. This is what we
-         * use for the detail view query. We assume a normalized date is passed to this method.
-         *
-         * @param date Normalized date in milliseconds
-         * @return Uri to query details about a single weather entry
-         */
-        public static Uri buildNewsUriWithDate(long date) {
-            return CONTENT_URI.buildUpon()
-                    .appendPath(Long.toString(date))
-                    .build();
-        }
 
     }
 }

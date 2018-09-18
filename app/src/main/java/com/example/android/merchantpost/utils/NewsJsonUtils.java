@@ -15,28 +15,17 @@ public class NewsJsonUtils {
 
     /**
      * This method parses JSON from a web response and returns an array of Strings
-     *
-     * @param newsJsonStr JSON response from server
-     * @return Array of Strings describing weather data
-     * @throws JSONException If JSON data cannot be properly parsed
      */
-    public static ContentValues[] getSimpleNewsStringsFromJson(Context context, String newsJsonStr)
+    public static ContentValues[] getNewsContentValuesFromJson(String newsJsonStr)
             throws JSONException {
 
         // News item. Each news item is an element of the "articles" array
         final String NEWS_LIST = "articles";
 
-        // News headline for the news item
+        // News headline, date and author of the news item
         final String NEWS_TITLE = "title";
-
-        // News published date for the news item
         final String NEWS_DATE = "publishedAt";
-
-        // News source name for the news item
         final String NEWS_AUTHOR = "author";
-
-        // News source url for the news item
-        final String NEWS_URL = "url";
 
         JSONObject newsJson = new JSONObject(newsJsonStr);
 
@@ -49,33 +38,25 @@ public class NewsJsonUtils {
 
         ContentValues[] newsContentValues = new ContentValues[newsArray.length()];
 
-        long normalizedUtcStartDay = NewsDateUtils.getNormalizedUtcDateForToday();
-
         for (int i = 0; i < newsArray.length(); i++) {
 
             /* These are the values that will be collected */
             String title;
             String author;
-            long dateTimeMillis;
+            String date;
 
             /* Get the JSON object representing the new item */
             JSONObject newsItem = newsArray.getJSONObject(i);
 
             title = newsItem.getString(NEWS_TITLE);
             author = newsItem.getString(NEWS_AUTHOR);
-            dateTimeMillis = newsItem.getLong(NEWS_DATE);
-
-            /*
-             * We ignore all the datetime values embedded in the JSON and assume that
-             * the values are returned in-order by day (which is not guaranteed to be correct).
-             */
-            //dateTimeMillis = normalizedUtcStartDay + NewsDateUtils.DAY_IN_MILLIS;
+            date = newsItem.getString(NEWS_DATE);
 
             ContentValues newsValues = new ContentValues();
 
             newsValues.put(NewsContract.NewsEntry.COLUMN_TITLE, title);
             newsValues.put(NewsContract.NewsEntry.COLUMN_AUTHOR, author);
-            newsValues.put(NewsContract.NewsEntry.COLUMN_DATE, dateTimeMillis);
+            newsValues.put(NewsContract.NewsEntry.COLUMN_DATE, date);
 
             newsContentValues[i] = newsValues;
         }

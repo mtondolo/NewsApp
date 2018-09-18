@@ -23,8 +23,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.android.merchantpost.utils.NewsDateUtils;
-
 /**
  * {@link NewsAdapter} exposes a list of weather forecasts
  * from a {@link android.database.Cursor} to a {@link android.support.v7.widget.RecyclerView}.
@@ -51,10 +49,6 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
 
     /**
      * Creates a NewsAdapter.
-     *
-     * @param context      Used to talk to the UI and app resources
-     * @param clickHandler The on-click handler for this adapter. This single handler is called
-     *                     when an item is clicked.
      */
     public NewsAdapter(Context context, NewsAdapterOnClickHandler clickHandler) {
         mContext = context;
@@ -78,11 +72,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
         }
 
         /**
-         * This gets called by the child views during a click. We fetch the date that has been
-         * selected, and then call the onClick handler registered with this adapter, passing that
-         * date.
-         *
-         * @param v the View that was clicked
+         * This gets called by the child views during a click.
          */
         @Override
         public void onClick(View v) {
@@ -92,15 +82,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
     }
 
     /**
-     * This gets called when each new ViewHolder is created. This happens when the RecyclerView
-     * is laid out. Enough ViewHolders will be created to fill the screen and allow for scrolling.
-     *
-     * @param viewGroup The ViewGroup that these ViewHolders are contained within.
-     * @param viewType  If your RecyclerView has more than one type of item, (which ours doesn't) you
-     *                  can use this viewType integer to provide a different layout. See
-     *                  {@link android.support.v7.widget.RecyclerView.Adapter#getItemViewType(int)}
-     *                  for more details.
-     * @return A new ForecastAdapterViewHolder that holds the View for each list item
+     * This gets called when each new ViewHolder is created.
      */
     @Override
     public NewsAdapterViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
@@ -119,13 +101,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
 
     /**
      * OnBindViewHolder is called by the RecyclerView to display the data at the specified
-     * position. In this method, we update the contents of the ViewHolder to display the news
-     * details for this particular position, using the "position" argument that is conveniently
-     * passed into us.
-     *
-     * @param newsAdapterViewHolder The ViewHolder which should be updated to represent the
-     *                              contents of the item at the given position in the data set.
-     * @param position              The position of the item within the adapter's data set.
+     * position.
      */
     @Override
     public void onBindViewHolder(NewsAdapterViewHolder newsAdapterViewHolder, int position) {
@@ -136,22 +112,16 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
         /* Read title, name and date from the cursor */
         String title = mCursor.getString(NewsActivity.INDEX_NEWS_TITLE);
         String author = mCursor.getString(NewsActivity.INDEX_NEWS_AUTHOR);
-        //String date = mCursor.getString(NewsActivity.INDEX_NEWS_DATE);
+        String date = mCursor.getString(NewsActivity.INDEX_NEWS_DATE);
 
-        long dateInMillis = mCursor.getLong(NewsActivity.INDEX_NEWS_DATE);
-        //String dateString = NewsDateUtils.getFriendlyDateString(mContext, dateInMillis, false);
-
-        String newsItem = title + " - " + author + " - " + dateInMillis;
+        String newsItem = title + " - " + author + " - " + date;
 
         // Display the summary that we created above
         newsAdapterViewHolder.mNewsTextView.setText(newsItem);
     }
 
     /**
-     * This method simply returns the number of items to display. It is used behind the scenes
-     * to help layout our Views and for animations.
-     *
-     * @return The number of items available in our news
+     * This method simply returns the number of items to display.
      */
     @Override
     public int getItemCount() {
@@ -160,12 +130,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
     }
 
     /**
-     * Swaps the cursor used by the NewsAdapter for its news data. This method is called by
-     * NewsActivity after a load has finished, as well as when the Loader responsible for loading
-     * the weather data is reset. When this method is called, we assume we have a completely new
-     * set of data, so we call notifyDataSetChanged to tell the RecyclerView to update.
-     *
-     * @param newCursor the new cursor to use as ForecastAdapter's data source
+     * Swaps the cursor used by the NewsAdapter for its news data.
      */
     void swapCursor(Cursor newCursor) {
         mCursor = newCursor;

@@ -49,52 +49,23 @@ public class NewsDbHelper extends SQLiteOpenHelper {
      */
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-
-        /*
-         * This String will contain a simple SQL statement that will create a table that will
-         * cache our news data.
-         */
         final String SQL_CREATE_NEWS_TABLE =
 
                 "CREATE TABLE " + NewsEntry.TABLE_NAME + " (" +
-
-                        /*
-                         * NewsEntry did not explicitly declare a column called "_ID". However,
-                         * NewsEntry implements the interface, "BaseColumns", which does have a field
-                         * named "_ID". We use that here to designate our table's primary key.
-                         */
                         NewsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         NewsEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
                         NewsEntry.COLUMN_DATE + " INTEGER NOT NULL, " +
                         NewsEntry.COLUMN_AUTHOR + " TEXT NOT NULL);";
-
-        /*
-         * After we've spelled out our SQLite table creation statement above, we actually execute
-         * that SQL with the execSQL method of our SQLite database object.
-         */
         sqLiteDatabase.execSQL(SQL_CREATE_NEWS_TABLE);
-
     }
 
     /**
      * This database is only a cache for online data, so its upgrade policy is simply to discard
-     * the data and call through to onCreate to recreate the table. Note that this only fires if
-     * you change the version number for your database (in our case, DATABASE_VERSION). It does NOT
-     * depend on the version number for your application found in your app/build.gradle file. If
-     * you want to update the schema without wiping data, commenting out the current body of this
-     * method should be your top priority before modifying this method.
-     *
-     * @param sqLiteDatabase Database that is being upgraded
-     * @param oldVersion     The old database version
-     * @param newVersion     The new database version
+     * the data and call through to onCreate to recreate the table.
      */
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-
-        // Drop the weather table if it exists
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + NewsEntry.TABLE_NAME);
-
-        // Pass in the SQLiteDatabase (passed in to onUpgrade)
         onCreate(sqLiteDatabase);
 
     }
