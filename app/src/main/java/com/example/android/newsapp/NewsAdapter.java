@@ -21,7 +21,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 /**
  * {@link NewsAdapter} exposes a list of weather forecasts
@@ -42,7 +45,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
      * The interface that receives onClick messages.
      */
     public interface NewsAdapterOnClickHandler {
-        void onClick(String newsItem);
+        void onClick(String date);
     }
 
     private Cursor mCursor;
@@ -60,14 +63,20 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
      */
     public class NewsAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        public final TextView mNewsTextView;
+        final ImageView imageView;
+        final TextView titleView;
+        final TextView timeView;
+        final TextView authorView;
 
         // Constructor for the NewsAdapter class that accepts a View as a parameter
         public NewsAdapterViewHolder(View view) {
             super(view);
 
-            // Get a reference to this layout's TextView and save it to mNewsTextView
-            mNewsTextView = (TextView) view.findViewById(R.id.tv_news_data);
+            imageView = (ImageView) view.findViewById(R.id.image);
+            titleView = (TextView) view.findViewById(R.id.title);
+            timeView = (TextView) view.findViewById(R.id.time);
+            authorView = (TextView) view.findViewById(R.id.author);
+
             view.setOnClickListener(this);
         }
 
@@ -76,8 +85,10 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
          */
         @Override
         public void onClick(View v) {
-            String newsItem = mNewsTextView.getText().toString();
-            mClickHandler.onClick(newsItem);
+            int adapterPosition = getAdapterPosition();
+            mCursor.moveToPosition(adapterPosition);
+            String url = mCursor.getString(NewsActivity.INDEX_NEWS_URL);
+            mClickHandler.onClick(url);
         }
     }
 
@@ -109,15 +120,22 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
         // Move the cursor to the appropriate position
         mCursor.moveToPosition(position);
 
-        /* Read title, name and date from the cursor */
+        /* Get image, title, name, date and web page from the cursor and display the values*/
+        String urlToImage = mCursor.getString(NewsActivity.INDEX_NEWS_IMAGE);
+        Picasso.get()
+                .load(urlToImage)
+                .resize(176, 128)
+                .centerCrop()
+                .into(newsAdapterViewHolder.imageView);
+
         String title = mCursor.getString(NewsActivity.INDEX_NEWS_TITLE);
+        newsAdapterViewHolder.titleView.setText(title);
+
         String author = mCursor.getString(NewsActivity.INDEX_NEWS_AUTHOR);
+        newsAdapterViewHolder.authorView.setText(author);
+
         String date = mCursor.getString(NewsActivity.INDEX_NEWS_DATE);
-
-        String newsItem = title + " - " + author + " - " + date;
-
-        // Display the summary that we created above
-        newsAdapterViewHolder.mNewsTextView.setText(newsItem);
+        newsAdapterViewHolder.timeView.setText(date);
     }
 
     /**

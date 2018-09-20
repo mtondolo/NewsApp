@@ -1,6 +1,5 @@
 package com.example.android.newsapp;
 
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -15,7 +14,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.example.android.newsapp.data.NewsContract;
 import com.example.android.newsapp.sync.NewsSyncUtils;
@@ -29,9 +27,11 @@ public class NewsActivity extends AppCompatActivity implements
      * news data.
      */
     public static final String[] MAIN_NEWS_PROJECTION = {
+            NewsContract.NewsEntry.COLUMN_IMAGE,
             NewsContract.NewsEntry.COLUMN_TITLE,
             NewsContract.NewsEntry.COLUMN_DATE,
             NewsContract.NewsEntry.COLUMN_AUTHOR,
+            NewsContract.NewsEntry.COLUMN_URL,
     };
 
     /*
@@ -39,9 +39,11 @@ public class NewsActivity extends AppCompatActivity implements
      * access the data from our query. If the order of the Strings above changes, these indices
      * must be adjusted to match the order of the Strings.
      */
-    public static final int INDEX_NEWS_TITLE = 0;
-    public static final int INDEX_NEWS_DATE = 1;
-    public static final int INDEX_NEWS_AUTHOR = 2;
+    public static final int INDEX_NEWS_IMAGE = 0;
+    public static final int INDEX_NEWS_TITLE = 1;
+    public static final int INDEX_NEWS_DATE = 2;
+    public static final int INDEX_NEWS_AUTHOR = 3;
+    public static final int INDEX_NEWS_URL = 4;
 
     /*
      * This ID will be used to identify the Loader responsible for loading our news data. In
@@ -140,10 +142,8 @@ public class NewsActivity extends AppCompatActivity implements
      * clicks.
      */
     @Override
-    public void onClick(String newsItem) {
-        Context context = this;
-        Toast.makeText(context, newsItem, Toast.LENGTH_SHORT)
-                .show();
+    public void onClick(String url) {
+        openWebPage(url);
     }
 
     /**
@@ -231,6 +231,14 @@ public class NewsActivity extends AppCompatActivity implements
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void openWebPage(String url) {
+        Uri webPage = Uri.parse(url);
+        Intent intent = new Intent(Intent.ACTION_VIEW, webPage);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
     }
 }
 

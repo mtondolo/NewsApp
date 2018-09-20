@@ -53,9 +53,11 @@ public class NewsDbHelper extends SQLiteOpenHelper {
 
                 "CREATE TABLE " + NewsEntry.TABLE_NAME + " (" +
                         NewsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        NewsEntry.COLUMN_IMAGE + " TEXT NOT NULL, " +
                         NewsEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
                         NewsEntry.COLUMN_DATE + " INTEGER NOT NULL, " +
-                        NewsEntry.COLUMN_AUTHOR + " TEXT NOT NULL);";
+                        NewsEntry.COLUMN_AUTHOR + " TEXT NOT NULL, " +
+                        NewsEntry.COLUMN_URL + " TEXT NOT NULL);";
         sqLiteDatabase.execSQL(SQL_CREATE_NEWS_TABLE);
     }
 

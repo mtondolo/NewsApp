@@ -57,9 +57,11 @@ public class NewsContract {
         public static final String TABLE_NAME = "news";
 
         /* title, date and author are stored representing their values*/
+        public static final String COLUMN_IMAGE = "urlToImage";
         public static final String COLUMN_TITLE = "title";
         public static final String COLUMN_DATE = "date";
         public static final String COLUMN_AUTHOR = "author";
+        public static final String COLUMN_URL = "url";
 
     }
 }
