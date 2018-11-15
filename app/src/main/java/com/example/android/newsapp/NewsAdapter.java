@@ -73,7 +73,6 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
         final ImageView imageView;
         final TextView titleView;
         final TextView timeView;
-        final TextView authorView;
 
         // Constructor for the NewsAdapter class that accepts a View as a parameter
         public NewsAdapterViewHolder(View view) {
@@ -82,7 +81,6 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
             imageView = (ImageView) view.findViewById(R.id.image);
             titleView = (TextView) view.findViewById(R.id.title);
             timeView = (TextView) view.findViewById(R.id.time);
-            authorView = (TextView) view.findViewById(R.id.author);
 
             view.setOnClickListener(this);
         }
@@ -156,9 +154,6 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
 
         String title = mCursor.getString(NewsActivity.INDEX_NEWS_TITLE);
         newsAdapterViewHolder.titleView.setText(title);
-
-        String author = mCursor.getString(NewsActivity.INDEX_NEWS_AUTHOR);
-        newsAdapterViewHolder.authorView.setText(author);
 
         String date = mCursor.getString(NewsActivity.INDEX_NEWS_DATE);
         newsAdapterViewHolder.timeView.setText(date);
