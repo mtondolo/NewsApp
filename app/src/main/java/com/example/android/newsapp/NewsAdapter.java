@@ -136,11 +136,23 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
 
         /* Get image, title, name, date and web page from the cursor and display the values*/
         String urlToImage = mCursor.getString(NewsActivity.INDEX_NEWS_IMAGE);
-        Picasso.get()
-                .load(urlToImage)
-                .resize(146, 98)
-                .centerCrop()
-                .into(newsAdapterViewHolder.imageView);
+
+        if (urlToImage.isEmpty()) {//url.isEmpty()
+            Picasso.get()
+                    .load(R.color.colorGrey)
+                    .placeholder(R.color.colorGrey)
+                    .error(R.color.colorGrey)
+                    .resize(126, 78)
+                    .centerCrop()
+                    .into(newsAdapterViewHolder.imageView);
+        } else {
+            Picasso.get()
+                    .load(urlToImage)
+                    .placeholder(R.color.colorGrey)
+                    .resize(126, 78)
+                    .centerCrop()
+                    .into(newsAdapterViewHolder.imageView);//this is our ImageView
+        }
 
         String title = mCursor.getString(NewsActivity.INDEX_NEWS_TITLE);
         newsAdapterViewHolder.titleView.setText(title);
