@@ -26,6 +26,9 @@ dependencies {
     // RecyclerView dependency
     implementation 'com.android.support:recyclerview-v7:27.1.1'
 
+    // Dependency to support material design components and patterns
+    implementation "com.android.support:design:27.1.1"
+
     // Preferences dependency
     implementation 'com.android.support:preference-v7:27.1.1'
 
