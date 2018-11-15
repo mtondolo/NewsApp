@@ -21,7 +21,7 @@ public class NewsNetworkUtils {
 
     final static String NEWS_API_BASE_URL =
             "https://newsapi.org/v2/top-headlines?" +
-                    "sources=bbc-news,bloomberg,techcrunch,four-four-two,medical-news-today,mtv-news,new-scientist";
+                    "sources=al-jazeera-english,bbc-news,cnn";
     final static String PARAM_KEY = "apiKey";
     final static String apiKey = "641959fcdf1e4463bbf0e95a63efced5";
 
